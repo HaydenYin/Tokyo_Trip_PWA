@@ -1,7 +1,7 @@
 // --- 0. PWA Service Worker 註冊 (必須放在最前面) ---
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    // 【修正點】使用相對路徑註冊 service worker，以適用 GitHub Pages 的子路徑
+    // 使用相對路徑註冊 service worker
     navigator.serviceWorker.register('service-worker.js') 
       .then(registration => console.log('SW 註冊成功:', registration.scope))
       .catch(err => console.error('SW 註冊失敗:', err));
@@ -375,7 +375,7 @@ const TOTAL_BUDGET = 50000; // 總預算 (日幣)
 const OPENWEATHER_API_KEY = "03f4d869a3955b9e8d44ee21f3fbb343";
 const TOKYO_CITY_NAME = "Tokyo,JP"; 
 
-// 類別中英對照，用於顯示中文名稱
+// 類別中英對照，用於顯示中文名稱和圖表邏輯
 const CATEGORY_MAP = {
     'food': '餐飲',
     'transport': '交通',
@@ -384,7 +384,7 @@ const CATEGORY_MAP = {
     'other': '其他'
 };
 
-// --- 2. 行程與導航輔助函數 (與前一版本一致) ---
+// --- 2. 行程與導航輔助函數 ---
 
 /**
  * 根據活動內容決定卡片樣式/圖標，並識別亮點
@@ -436,8 +436,7 @@ function createNavigationButton(location) {
         return '';
     }
     
-    // 【修正點】使用標準 Google Maps 查詢參數 'q='
-    // 注意: 這裡已經修正了前面版本中錯誤的 URL 拼接，確保是正確的 Google Maps 查詢連結
+    // 使用標準 Google Maps 查詢參數 'q=' 
     const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`; 
 
     return `<a href="${mapUrl}" target="_blank" class="nav-button">📍 搜尋 ${location.split('→')[0]}</a>`;
@@ -458,7 +457,7 @@ function parseChineseDate(dateStr) {
 }
 
 
-// --- 3. 天氣 API 函數 (與前一版本一致) ---
+// --- 3. 天氣 API 函數 ---
 
 /**
  * 抓取單個地點的即時天氣數據
@@ -467,12 +466,16 @@ async function fetchWeatherData(locationName, targetDate) {
     // 判斷是否為今日，目前免費 API 僅支援「即時」天氣
     const today = new Date().toISOString().split('T')[0];
     if (targetDate !== today) {
-        // 如果不是今日，我們暫時無法提供精確的預報 (免費 API 限制)
+        // 由於離線環境，無法提供未來預報
         return '暫無即時預報';
     }
 
+    // 離線模式下，不發起網路請求
+    if (!navigator.onLine) {
+         return '離線模式，無法更新天氣';
+    }
+
     try {
-        // 使用 HTTPS 協定
         const url = `https://api.openweathermap.org/data/2.5/weather?q=${locationName}&appid=${OPENWEATHER_API_KEY}&units=metric&lang=zh_tw`;
         const response = await fetch(url);
         const data = await response.json();
@@ -484,7 +487,7 @@ async function fetchWeatherData(locationName, targetDate) {
             const temp_max = data.main.temp_max.toFixed(0);
             const iconCode = data.weather[0].icon;
 
-            // 構造天氣顯示 HTML (已修正圖標協定為 HTTPS)
+            // 構造天氣顯示 HTML 
             return `
                 <div class="weather-result">
                     <img src="https://openweathermap.org/img/wn/${iconCode}.png" alt="Weather Icon">
@@ -503,23 +506,20 @@ async function fetchWeatherData(locationName, targetDate) {
 }
 
 
-// --- 4. 行程渲染主函數 (與前一版本一致) ---
+// --- 4. 行程渲染主函數 ---
 
 /**
  * 渲染每日行程卡片
  */
 function renderItineraries() {
-    // 清空舊的內容
     timelineContainer.innerHTML = ''; 
 
     tripData.dailyItineraries.forEach(async (day, index) => { 
         const dayCard = document.createElement('div');
         dayCard.className = 'daily-card';
 
-        // 判斷地點是否為滑雪場，以決定天氣查詢地點
         let mainLocation = (day.date.includes('岩原')) ? 'Yuzawa,JP' : TOKYO_CITY_NAME;
         
-        // 抓取天氣數據
         const dateString = parseChineseDate(day.date);
         const weatherHtml = await fetchWeatherData(mainLocation, dateString);
         
@@ -550,7 +550,7 @@ function renderItineraries() {
                 </div>
             `;
         });
-        // 每日卡片的整體結構
+        
         dayCard.innerHTML = `
             <div class="weather-placeholder">${weatherHtml}</div>
             <h2>${day.date}：${day.title}</h2>
@@ -563,7 +563,7 @@ function renderItineraries() {
 }
 
 
-// --- 5. 工具箱數據渲染主函數 (修改了記帳容器結構) ---
+// --- 5. 工具箱數據渲染主函數 (包含記帳容器結構) ---
 
 /**
  * 渲染旅遊工具箱資訊 (航班、住宿、緊急聯絡、記帳介面)
@@ -606,10 +606,9 @@ function loadToolkitData() {
         </div>
     `;
 
-    // 4. 渲染記帳功能介面
+    // 4. 渲染記帳功能介面 (包含圖表容器)
     const budgetTrackerContainer = document.getElementById('budget-tracker');
 
-    // 重新渲染記帳表單結構 - 【新增了圓餅圖容器】
     budgetTrackerContainer.innerHTML = `
         <h2>💰 記帳/預算表</h2>
         <div id="budget-summary" class="info-box">
@@ -646,7 +645,7 @@ function loadToolkitData() {
         </div>
     `;
 
-    // 綁定事件：當表單提交時，處理交易
+    // 綁定事件
     document.getElementById('add-transaction-form').addEventListener('submit', handleAddTransaction);
 
     // 第一次載入時渲染列表和圖表
@@ -659,7 +658,6 @@ function loadToolkitData() {
 // 輔助函數：從 localStorage 獲取所有交易
 function getTransactions() {
     let transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
-    // 排序：確保列表以日期降序顯示 (最新在前)
     transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
     return transactions; 
 }
@@ -691,12 +689,11 @@ function handleAddTransaction(event) {
     };
 
     const transactions = getTransactions();
-    transactions.push(newTransaction); // 放入新交易
+    transactions.push(newTransaction); 
     localStorage.setItem('transactions', JSON.stringify(transactions));
 
-    // 重置表單並重新渲染
     document.getElementById('add-transaction-form').reset();
-    renderBudgetTracker(); // 重新渲染列表和圖表
+    renderBudgetTracker(); 
 }
 
 /**
@@ -706,7 +703,6 @@ function handleEditTransaction(id) {
     const transactionToEdit = getTransaction(id);
     if (!transactionToEdit) return;
 
-    // 定義所有類別選項
     const categories = Object.keys(CATEGORY_MAP); 
 
     // 1. 獲取新日期 (YYYY-MM-DD)
@@ -743,10 +739,8 @@ function handleEditTransaction(id) {
     let newDescription = prompt(`請輸入新的備註/品項，目前: ${transactionToEdit.description}`, transactionToEdit.description);
     if (newDescription === null) return;
 
-    // 確認修改
     if (!confirm('您確定要儲存這些修改嗎？')) return;
 
-    // 執行更新
     let transactions = getTransactions();
     const index = transactions.findIndex(t => t.id === id);
 
@@ -756,7 +750,6 @@ function handleEditTransaction(id) {
         transactions[index].category = newCategory;
         transactions[index].description = newDescription;
 
-        // 儲存並重新渲染
         localStorage.setItem('transactions', JSON.stringify(transactions));
         alert("交易已成功修改！");
         renderBudgetTracker();
@@ -781,15 +774,17 @@ function handleDeleteTransaction(id) {
 }
 
 /**
- * 【新增】渲染支出類別圓餅圖
+ * 渲染支出類別圓餅圖 (純 CSS 實現)
  */
 function renderCategoryChart(transactions, totalSpend) {
     const pieChart = document.getElementById('category-pie-chart');
     const legend = document.getElementById('chart-legend');
     
-    if (!pieChart || !legend || totalSpend === 0) {
-        if (legend) legend.innerHTML = totalSpend === 0 ? '<p>尚無支出記錄。</p>' : '';
-        if (pieChart) pieChart.style.background = 'none';
+    if (!pieChart || !legend) return;
+
+    if (totalSpend === 0) {
+        legend.innerHTML = '<p>尚無支出記錄。</p>';
+        pieChart.style.background = '#E0E0E0'; // 顯示灰色圓圈
         return;
     }
 
@@ -812,7 +807,6 @@ function renderCategoryChart(transactions, totalSpend) {
         'other': '#9966FF'
     };
 
-    // 將類別支出按百分比排序 (可選，但讓圖表更美觀)
     const sortedCategories = Object.keys(categoryTotals).sort((a, b) => categoryTotals[b] - categoryTotals[a]);
 
     sortedCategories.forEach(cat => {
@@ -823,10 +817,8 @@ function renderCategoryChart(transactions, totalSpend) {
         const chineseName = CATEGORY_MAP[cat] || cat;
 
         if (percentage > 0) {
-            // 構造漸層片段
             gradient += `${color} ${currentAngle.toFixed(1)}% ${endAngle.toFixed(1)}%,`;
             
-            // 構造圖例
             legendHtml += `
                 <div class="legend-item">
                     <span class="legend-color" style="background-color: ${color};"></span>
@@ -839,13 +831,13 @@ function renderCategoryChart(transactions, totalSpend) {
     });
 
     // 3. 應用到 DOM
-    gradient = gradient.slice(0, -1) + ')'; // 移除最後的逗號並閉合
+    gradient = gradient.slice(0, -1) + ')'; 
     pieChart.style.background = gradient;
     legend.innerHTML = legendHtml;
 }
 
 
-// 渲染記帳列表和總結 (新增了類別顯示)
+// 渲染記帳列表和總結
 function renderBudgetTracker() {
     const transactions = getTransactions();
     const list = document.getElementById('transactions-list');
@@ -862,10 +854,8 @@ function renderBudgetTracker() {
             dailySpend += t.amount;
         }
         
-        // 獲取中文類別名稱
         const chineseCategory = CATEGORY_MAP[t.category] || t.category;
 
-        // 交易列表 HTML - 【修正：新增類別顯示】
         listHtml += `
             <li class="transaction-item category-${t.category}">
                 <div class="transaction-detail">
@@ -893,7 +883,7 @@ function renderBudgetTracker() {
 
     if (list) list.innerHTML = listHtml;
     
-    // 【重要：綁定按鈕的事件】
+    // 綁定按鈕的事件 (必須在 innerHTML 賦值後綁定)
     document.querySelectorAll('.delete-btn').forEach(button => {
         button.addEventListener('click', (event) => {
             const transactionId = parseInt(event.currentTarget.dataset.id);
@@ -908,7 +898,6 @@ function renderBudgetTracker() {
         });
     });
     
-    // 【新增】渲染圓餅圖
     renderCategoryChart(transactions, totalSpend);
 }
 
@@ -921,7 +910,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const timelinePage = document.getElementById('timeline');
     const toolkitPage = document.getElementById('toolkit');
 
-    // 1. 執行數據渲染 (載入行程和工具箱數據)
+    // 1. 執行數據渲染
     renderItineraries(); 
     loadToolkitData();
 
@@ -929,17 +918,16 @@ document.addEventListener('DOMContentLoaded', () => {
     timelineTab.addEventListener('click', () => {
         timelineTab.classList.add('active');
         toolkitTab.classList.remove('active');
-        timelinePage.classList.remove('hidden'); // 顯示行程
-        toolkitPage.classList.add('hidden');    // 隱藏工具箱
+        timelinePage.classList.remove('hidden'); 
+        toolkitPage.classList.add('hidden');    
     });
 
     toolkitTab.addEventListener('click', () => {
         toolkitTab.classList.add('active');
         timelineTab.classList.remove('active');
-        timelinePage.classList.add('hidden');    // 隱藏行程
-        toolkitPage.classList.remove('hidden');  // 顯示工具箱
+        timelinePage.classList.add('hidden');    
+        toolkitPage.classList.remove('hidden');  
         
-        // 確保切換到工具箱時，記帳列表和圖表是最新狀態
         renderBudgetTracker(); 
     });
 });

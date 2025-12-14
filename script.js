@@ -591,7 +591,7 @@ function renderItineraries() {
         header.addEventListener('click', () => {
              // 切換整個卡片的 'expanded' 狀態
              dayCard.classList.toggle('expanded'); 
-             
+
         timelineContainer.appendChild(dayCard);
 
         });
@@ -611,9 +611,9 @@ function loadToolkitData() {
         <h2>✈️ 航班資訊</h2>
         <div class="info-box">
             <h3>去程 (${info.flights.outbound.flightNumber})</h3>
-            <p><strong>時間:</strong> ${info.flights.outbound.departureTime} (香港) → ${info.flights.outbound.arrivalTime} (${info.flights.outbound.arrivalAirport})</p>
+            <p><strong>時間:</strong> 09:20 (HKG) → 14:25 (${info.flights.outbound.arrivalAirport})</p>
             <h3>回程 (${info.flights.return.flightNumber})</h3>
-            <p><strong>時間:</strong> ${info.flights.return.departureTime}</p>
+            <p><strong>時間:</strong> ${info.flights.return.departureTime} (NRT) → 21:30 (HKG)</p>
             <p class="alert-note">🚨 務必在 12:30 前出發前往機場！</p>
         </div>
     `;
@@ -636,8 +636,8 @@ function loadToolkitData() {
         <h2>📞 緊急聯絡電話</h2>
         <div class="info-box">
             <p><strong>警察/火災/救護:</strong> 110 / 119</p>
-            <p><strong>飯店電話:</strong> (待填寫)</p>
-            <p><strong>您的緊急聯絡人:</strong> (待填寫)</p>
+            <p><strong>飯店電話:</strong> +81 3-6689-5511</p>
+            <p><strong>您的緊急聯絡人:</strong> Yin Hong +852 9653 6696</p>
             <p class="alert-note">${info.emergencyContacts.notes}</p>
         </div>
     `;

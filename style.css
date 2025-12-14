@@ -292,12 +292,16 @@ header h1 {
 .transaction-detail {
     display: flex;
     align-items: center;
+    flex-grow: 1;
 }
-/* 新增動作區塊的樣式 - 包含日期和按鈕 */
-.transaction-actions {
-    display: flex;
-    align-items: center;
-    gap: 5px; /* 縮小按鈕間距 */
+
+/* 【新增】明細中的類別名稱 */
+.transaction-category {
+    font-weight: bold;
+    font-size: 0.85em;
+    color: #6495ED; /* 使用主題色 */
+    margin-right: 10px;
+    flex-shrink: 0;
 }
 
 .transaction-item strong {
@@ -310,6 +314,17 @@ header h1 {
     font-size: 0.9em;
     color: #555;
     flex-grow: 1;
+    /* 如果文字過長，截斷 */
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+/* 新增動作區塊的樣式 - 包含日期和按鈕 */
+.transaction-actions {
+    display: flex;
+    align-items: center;
+    gap: 5px; /* 縮小按鈕間距 */
+    flex-shrink: 0;
 }
 .transaction-item small {
     font-size: 0.75em;
@@ -344,4 +359,50 @@ header h1 {
 }
 .edit-btn:hover {
     color: #4169E1;
+}
+
+/* --- 圓餅圖樣式 (純 CSS) --- */
+.pie-chart-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 10px 0;
+    gap: 20px;
+    flex-wrap: wrap; /* 小螢幕時換行 */
+}
+
+.pie-chart {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    /* 確保在沒有數據時是灰色邊框，而不是空的 */
+    background: #E0E0E0; 
+}
+
+.chart-legend {
+    flex-grow: 1;
+    min-width: 150px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+    color: #333;
+}
+
+.legend-color {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.legend-item small {
+    margin-left: auto;
+    font-weight: bold;
+    color: #D32F2F;
 }

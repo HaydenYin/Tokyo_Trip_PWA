@@ -375,6 +375,14 @@ const TOTAL_BUDGET = 50000; // 總預算 (日幣)
 const OPENWEATHER_API_KEY = "03f4d869a3955b9e8d44ee21f3fbb343";
 const TOKYO_CITY_NAME = "Tokyo,JP"; 
 
+// 類別中英對照，用於顯示中文名稱
+const CATEGORY_MAP = {
+    'food': '餐飲',
+    'transport': '交通',
+    'shopping': '購物',
+    'ticket': '門票/住宿',
+    'other': '其他'
+};
 
 // --- 2. 行程與導航輔助函數 (與前一版本一致) ---
 
@@ -428,8 +436,9 @@ function createNavigationButton(location) {
         return '';
     }
     
-    // 【修正點】使用標準 Google Maps 查詢參數 'q=' 替代 daddr/dir
-    const mapUrl = `http://googleusercontent.com/maps.google.com/9{encodeURIComponent(location)}`; 
+    // 【修正點】使用標準 Google Maps 查詢參數 'q='
+    // 注意: 這裡已經修正了前面版本中錯誤的 URL 拼接，確保是正確的 Google Maps 查詢連結
+    const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`; 
 
     return `<a href="${mapUrl}" target="_blank" class="nav-button">📍 搜尋 ${location.split('→')[0]}</a>`;
 }
@@ -554,7 +563,7 @@ function renderItineraries() {
 }
 
 
-// --- 5. 工具箱數據渲染主函數 (與前一版本一致) ---
+// --- 5. 工具箱數據渲染主函數 (修改了記帳容器結構) ---
 
 /**
  * 渲染旅遊工具箱資訊 (航班、住宿、緊急聯絡、記帳介面)
@@ -575,8 +584,7 @@ function loadToolkitData() {
     `;
 
     // 2. 渲染住宿資訊
-    // 【修正點】使用標準 Google Maps 查詢連結
-    const hotelMapUrl = `maps.google.com0{encodeURIComponent(info.hotel)}`;
+    const hotelMapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(info.hotel)}`;
     document.getElementById('accommodation-info').innerHTML = `
         <h2>🏠 住宿資訊</h2>
         <div class="info-box">
@@ -601,7 +609,7 @@ function loadToolkitData() {
     // 4. 渲染記帳功能介面
     const budgetTrackerContainer = document.getElementById('budget-tracker');
 
-    // 重新渲染記帳表單結構 (不變)
+    // 重新渲染記帳表單結構 - 【新增了圓餅圖容器】
     budgetTrackerContainer.innerHTML = `
         <h2>💰 記帳/預算表</h2>
         <div id="budget-summary" class="info-box">
@@ -610,6 +618,14 @@ function loadToolkitData() {
             <p><strong>總支出:</strong> <span id="total-spend">$0</span></p>
         </div>
         
+        <div id="chart-container" class="info-box">
+            <h3>支出類別分佈</h3>
+            <div class="pie-chart-wrapper">
+                <div id="category-pie-chart" class="pie-chart"></div>
+                <div id="chart-legend" class="chart-legend"></div>
+            </div>
+        </div>
+
         <form id="add-transaction-form" class="info-box">
             <input type="number" id="amount" placeholder="金額" required>
             <select id="category" required>
@@ -633,7 +649,7 @@ function loadToolkitData() {
     // 綁定事件：當表單提交時，處理交易
     document.getElementById('add-transaction-form').addEventListener('submit', handleAddTransaction);
 
-    // 第一次載入時渲染列表
+    // 第一次載入時渲染列表和圖表
     renderBudgetTracker();
 }
 
@@ -680,24 +696,23 @@ function handleAddTransaction(event) {
 
     // 重置表單並重新渲染
     document.getElementById('add-transaction-form').reset();
-    renderBudgetTracker();
+    renderBudgetTracker(); // 重新渲染列表和圖表
 }
 
 /**
- * 【新增功能】處理修改交易 (日期、金額、類別、備註)
+ * 處理修改交易 (日期、金額、類別、備註)
  */
 function handleEditTransaction(id) {
     const transactionToEdit = getTransaction(id);
     if (!transactionToEdit) return;
 
     // 定義所有類別選項
-    const categories = ['food', 'transport', 'shopping', 'ticket', 'other'];
+    const categories = Object.keys(CATEGORY_MAP); 
 
     // 1. 獲取新日期 (YYYY-MM-DD)
     let newDate = prompt(`請輸入新的日期 (格式: YYYY-MM-DD)，目前: ${transactionToEdit.date}`, transactionToEdit.date);
-    if (newDate === null) return; // 使用者取消
+    if (newDate === null) return; 
 
-    // 簡單的日期格式驗證 (不嚴格檢查是否為有效日期)
     if (!/^\d{4}-\d{2}-\d{2}$/.test(newDate)) {
         alert("日期格式錯誤，請使用 YYYY-MM-DD 格式。");
         return;
@@ -714,13 +729,13 @@ function handleEditTransaction(id) {
     }
 
     // 3. 獲取新類別
-    const categoryOptions = categories.map(c => `[${c}]`).join(', ');
-    let newCategory = prompt(`請輸入新的類別 (${categoryOptions})，目前: ${transactionToEdit.category}`, transactionToEdit.category);
+    const categoryOptions = categories.map(c => `[${c}:${CATEGORY_MAP[c]}]`).join(', ');
+    let newCategory = prompt(`請輸入新的類別代碼 (${categoryOptions})，目前: ${transactionToEdit.category}`, transactionToEdit.category);
     if (newCategory === null) return; 
     newCategory = newCategory.toLowerCase().trim();
 
     if (!categories.includes(newCategory)) {
-        alert(`類別無效，請使用以下選項之一: ${categories.join(', ')}`);
+        alert(`類別代碼無效，請使用以下選項之一: ${categories.join(', ')}`);
         return;
     }
 
@@ -741,7 +756,7 @@ function handleEditTransaction(id) {
         transactions[index].category = newCategory;
         transactions[index].description = newDescription;
 
-        // 重新排序並儲存
+        // 儲存並重新渲染
         localStorage.setItem('transactions', JSON.stringify(transactions));
         alert("交易已成功修改！");
         renderBudgetTracker();
@@ -758,17 +773,79 @@ function handleDeleteTransaction(id) {
     }
     
     let transactions = getTransactions();
-    // 過濾掉與傳入 ID 相同的交易
     transactions = transactions.filter(t => t.id !== id);
     
     localStorage.setItem('transactions', JSON.stringify(transactions));
     
-    // 重新渲染列表和總結
     renderBudgetTracker();
 }
 
+/**
+ * 【新增】渲染支出類別圓餅圖
+ */
+function renderCategoryChart(transactions, totalSpend) {
+    const pieChart = document.getElementById('category-pie-chart');
+    const legend = document.getElementById('chart-legend');
+    
+    if (!pieChart || !legend || totalSpend === 0) {
+        if (legend) legend.innerHTML = totalSpend === 0 ? '<p>尚無支出記錄。</p>' : '';
+        if (pieChart) pieChart.style.background = 'none';
+        return;
+    }
 
-// 渲染記帳列表和總結
+    // 1. 計算每個類別的總支出
+    const categoryTotals = transactions.reduce((acc, t) => {
+        const cat = t.category || 'other';
+        acc[cat] = (acc[cat] || 0) + t.amount;
+        return acc;
+    }, {});
+
+    // 2. 準備 CSS 圓餅圖的背景漸層數據
+    let currentAngle = 0;
+    let gradient = 'conic-gradient(';
+    let legendHtml = '';
+    const colorMap = {
+        'food': '#FF6384',
+        'transport': '#36A2EB',
+        'shopping': '#FFCE56',
+        'ticket': '#4BC0C0',
+        'other': '#9966FF'
+    };
+
+    // 將類別支出按百分比排序 (可選，但讓圖表更美觀)
+    const sortedCategories = Object.keys(categoryTotals).sort((a, b) => categoryTotals[b] - categoryTotals[a]);
+
+    sortedCategories.forEach(cat => {
+        const amount = categoryTotals[cat];
+        const percentage = (amount / totalSpend) * 100;
+        const endAngle = currentAngle + percentage;
+        const color = colorMap[cat] || '#888888';
+        const chineseName = CATEGORY_MAP[cat] || cat;
+
+        if (percentage > 0) {
+            // 構造漸層片段
+            gradient += `${color} ${currentAngle.toFixed(1)}% ${endAngle.toFixed(1)}%,`;
+            
+            // 構造圖例
+            legendHtml += `
+                <div class="legend-item">
+                    <span class="legend-color" style="background-color: ${color};"></span>
+                    ${chineseName} (${percentage.toFixed(1)}%)
+                    <small>¥ ${amount.toFixed(0)}</small>
+                </div>
+            `;
+            currentAngle = endAngle;
+        }
+    });
+
+    // 3. 應用到 DOM
+    gradient = gradient.slice(0, -1) + ')'; // 移除最後的逗號並閉合
+    pieChart.style.background = gradient;
+    legend.innerHTML = legendHtml;
+}
+
+
+// 渲染記帳列表和總結 (新增了類別顯示)
 function renderBudgetTracker() {
     const transactions = getTransactions();
     const list = document.getElementById('transactions-list');
@@ -784,13 +861,17 @@ function renderBudgetTracker() {
         if (t.date === today) {
             dailySpend += t.amount;
         }
+        
+        // 獲取中文類別名稱
+        const chineseCategory = CATEGORY_MAP[t.category] || t.category;
 
-        // 交易列表 HTML - 【修正：新增編輯按鈕 ✏️】
+        // 交易列表 HTML - 【修正：新增類別顯示】
         listHtml += `
             <li class="transaction-item category-${t.category}">
                 <div class="transaction-detail">
                     <strong>¥ ${t.amount.toFixed(0)}</strong>
-                    <span class="transaction-desc">${t.description || t.category}</span>
+                    <span class="transaction-category">【${chineseCategory}】</span> 
+                    <span class="transaction-desc">${t.description || '無備註'}</span>
                 </div>
                 <div class="transaction-actions">
                     <small>${t.date}</small>
@@ -823,9 +904,12 @@ function renderBudgetTracker() {
     document.querySelectorAll('.edit-btn').forEach(button => {
         button.addEventListener('click', (event) => {
             const transactionId = parseInt(event.currentTarget.dataset.id);
-            handleEditTransaction(transactionId); // 綁定編輯函數
+            handleEditTransaction(transactionId); 
         });
     });
+    
+    // 【新增】渲染圓餅圖
+    renderCategoryChart(transactions, totalSpend);
 }
 
 
@@ -855,7 +939,7 @@ document.addEventListener('DOMContentLoaded', () => {
         timelinePage.classList.add('hidden');    // 隱藏行程
         toolkitPage.classList.remove('hidden');  // 顯示工具箱
         
-        // 確保切換到工具箱時，記帳列表是最新狀態
+        // 確保切換到工具箱時，記帳列表和圖表是最新狀態
         renderBudgetTracker(); 
     });
 });

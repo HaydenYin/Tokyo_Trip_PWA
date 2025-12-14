@@ -8,7 +8,7 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// --- 1. 數據定義 (此處內容與之前版本一致) ---
+// --- 1. 數據定義 ---
 const tripData = {
     "tripInfo": {
       "hotel": "上野御徒町WING精選國際飯店",
@@ -429,6 +429,7 @@ function parseActivity(activity, notes) {
 
 /**
  * 創建 Google Maps 搜尋連結 (使用標準查詢 q)
+ * **已修正：導航連結的 URL 格式**
  */
 function createNavigationButton(location) {
     const skipLocations = ['飯店/上野', '上野', '-', '飯店'];
@@ -436,10 +437,11 @@ function createNavigationButton(location) {
         return '';
     }
     
-    // 使用標準 Google Maps 查詢參數 'q=' 
-    const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`; 
+    // 修正後的 Google Maps 搜尋 URL
+    const searchLocation = location.split('→')[0].trim();
+    const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(searchLocation)}`; 
 
-    return `<a href="${mapUrl}" target="_blank" class="nav-button">📍 搜尋 ${location.split('→')[0]}</a>`;
+    return `<a href="${mapUrl}" target="_blank" class="nav-button">📍 搜尋 ${searchLocation}</a>`;
 }
 
 /**
@@ -450,7 +452,7 @@ function parseChineseDate(dateStr) {
     if (match) {
         const month = match[1].padStart(2, '0');
         const day = match[2].padStart(2, '0');
-        // 假設年份為 2025 年
+        // 假設年份為 2025 年 (根據 tripData 判斷)
         return `2025-${month}-${day}`;
     }
     return null;
@@ -506,28 +508,47 @@ async function fetchWeatherData(locationName, targetDate) {
 }
 
 
-// --- 4. 行程渲染主函數 (新增折疊功能) ---
+// --- 4. 行程渲染主函數 (新增折疊功能和自動定位) ---
 
 /**
  * 渲染每日行程卡片
  */
 function renderItineraries() {
     timelineContainer.innerHTML = ''; 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // 將時間歸零以便比較日期
+    let dayToExpandIndex = 0; // 預設為第一天
+    let closestDayDiff = Infinity;
 
     tripData.dailyItineraries.forEach(async (day, index) => { 
         const dayCard = document.createElement('div');
         dayCard.className = 'daily-card';
 
-        // --- NEW: 預設展開第一個卡片 ---
-        const isFirstDay = index === 0;
-        if (isFirstDay) {
+        const dateString = parseChineseDate(day.date); // 格式如 2025-12-18
+        
+        // **自動定位邏輯**
+        if (dateString) {
+             const tripDate = new Date(dateString);
+             tripDate.setHours(0, 0, 0, 0);
+             const diff = tripDate.getTime() - today.getTime(); // 差異毫秒數
+
+             // 找出最接近「今天」且尚未過去的日期
+             if (diff >= 0 && diff < closestDayDiff) {
+                 closestDayDiff = diff;
+                 dayToExpandIndex = index;
+             }
+             // 如果行程已全部過去，則預設展開最後一天
+             if (index === tripData.dailyItineraries.length - 1 && closestDayDiff === Infinity) {
+                 dayToExpandIndex = index;
+             }
+        }
+        
+        // 根據定位結果展開卡片
+        if (index === dayToExpandIndex) {
              dayCard.classList.add('expanded');
         }
-        // --- END NEW ---
 
         let mainLocation = (day.date.includes('岩原')) ? 'Yuzawa,JP' : TOKYO_CITY_NAME;
-        
-        const dateString = parseChineseDate(day.date);
         const weatherHtml = await fetchWeatherData(mainLocation, dateString);
         
         let activitiesHtml = '';
@@ -567,19 +588,17 @@ function renderItineraries() {
         `;
         timelineContainer.appendChild(dayCard);
 
-        // --- NEW: 綁定點擊事件 ---
+        // 綁定點擊事件
         const header = dayCard.querySelector('.toggle-header');
         header.addEventListener('click', () => {
              // 切換整個卡片的 'expanded' 狀態
              dayCard.classList.toggle('expanded'); 
         });
-        // --- END NEW ---
     });
 }
 
 
 // --- 5. 工具箱數據渲染主函數 (包含記帳容器結構) ---
-// (此函數內容與之前版本一致)
 /**
  * 渲染旅遊工具箱資訊 (航班、住宿、緊急聯絡、記帳介面)
  */
@@ -599,6 +618,7 @@ function loadToolkitData() {
     `;
 
     // 2. 渲染住宿資訊
+    // 修正: 使用標準 Google Maps 搜尋 API 格式
     const hotelMapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(info.hotel)}`;
     document.getElementById('accommodation-info').innerHTML = `
         <h2>🏠 住宿資訊</h2>
@@ -669,7 +689,6 @@ function loadToolkitData() {
 
 
 // --- 6. 離線記帳 (LocalStorage) 函數 ---
-// (以下所有記帳相關函數與之前版本一致)
 
 // 輔助函數：從 localStorage 獲取所有交易
 function getTransactions() {
@@ -833,6 +852,7 @@ function renderCategoryChart(transactions, totalSpend) {
         const chineseName = CATEGORY_MAP[cat] || cat;
 
         if (percentage > 0) {
+            // CSS conic-gradient 需要百分比 (%)
             gradient += `${color} ${currentAngle.toFixed(1)}% ${endAngle.toFixed(1)}%,`;
             
             legendHtml += `
@@ -847,6 +867,7 @@ function renderCategoryChart(transactions, totalSpend) {
     });
 
     // 3. 應用到 DOM
+    // 移除末尾逗號並加上右括號
     gradient = gradient.slice(0, -1) + ')'; 
     pieChart.style.background = gradient;
     legend.innerHTML = legendHtml;
@@ -926,7 +947,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const timelinePage = document.getElementById('timeline');
     const toolkitPage = document.getElementById('toolkit');
 
-    // 1. 執行數據渲染
+    // 1. 執行數據渲染 (包含自動定位和天氣請求)
     renderItineraries(); 
     loadToolkitData();
 
@@ -944,6 +965,7 @@ document.addEventListener('DOMContentLoaded', () => {
         timelinePage.classList.add('hidden');    
         toolkitPage.classList.remove('hidden');  
         
+        // 確保每次切換到工具箱時，記帳功能都會重新渲染，以更新當日支出和圖表
         renderBudgetTracker(); 
     });
 });

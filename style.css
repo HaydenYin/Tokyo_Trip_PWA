@@ -1,13 +1,13 @@
-/* --- 0. 基礎設定與字體 --- */
+/* --- 0. 全局與排版設置 --- */
 :root {
-    --primary-color: #3f51b5; /* 主要藍色 */
-    --accent-color: #ff5722;  /* 強調橙色 */
-    --background-color: #f4f4f9;
+    --primary-color: #3498db;
+    --secondary-color: #2ecc71;
+    --background-color: #f4f7f6;
     --card-background: #ffffff;
-    --text-color: #333333;
-    --sub-text-color: #777777;
-    --shadow-light: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-    --shadow-hover: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+    --text-color: #333;
+    --border-color: #ecf0f1;
+    --shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    --radius: 12px;
 }
 
 * {
@@ -17,301 +17,326 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-family: 'Helvetica Neue', Arial, sans-serif;
     background-color: var(--background-color);
     color: var(--text-color);
     line-height: 1.6;
-    padding-bottom: 70px; /* 為 Tab Bar 預留空間 */
 }
 
-h2, h3 {
-    color: var(--primary-color);
-    margin-top: 0.5em;
-    margin-bottom: 0.5em;
-}
-
-/* --- 1. 導航 Tab Bar 樣式 --- */
-.tab-bar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 60px;
-    background-color: var(--card-background);
-    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
+header {
+    background: var(--primary-color);
+    color: white;
+    padding: 1rem 0;
+    text-align: center;
+    box-shadow: var(--shadow);
+    position: sticky;
+    top: 0;
     z-index: 1000;
 }
 
-.tab-button {
-    flex-grow: 1;
-    text-align: center;
-    padding: 10px 0;
-    cursor: pointer;
-    font-size: 0.9rem;
-    color: var(--sub-text-color);
-    transition: color 0.3s ease;
-    border-top: 3px solid transparent;
+h1 {
+    font-size: 1.5rem;
 }
 
-.tab-button.active {
-    color: var(--primary-color);
-    border-top: 3px solid var(--primary-color);
-    font-weight: bold;
-}
-
-/* 確保只顯示當前選中的內容頁 */
-#timeline.hidden,
-#toolkit.hidden {
-    display: none;
-}
-
-/* --- 2. 內容容器與基本卡片 --- */
-.container {
+#app-container {
     max-width: 800px;
     margin: 0 auto;
-    padding: 20px 15px;
+    padding: 1rem;
 }
 
-.info-box {
-    background-color: var(--card-background);
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    box-shadow: var(--shadow-light);
-    border-left: 5px solid var(--primary-color);
-}
-
-.alert-note {
-    color: var(--accent-color);
-    font-weight: bold;
-    margin-top: 10px;
-}
-
-/* --- 3. 行程時間軸樣式 (Timeline) --- */
-.daily-card {
-    background-color: var(--card-background);
-    margin-bottom: 20px;
-    border-radius: 12px;
+/* --- 1. Tab 導航樣式 --- */
+#tabs {
+    display: flex;
+    justify-content: space-around;
+    background: var(--card-background);
+    border-radius: var(--radius);
     overflow: hidden;
-    box-shadow: var(--shadow-light);
-    transition: box-shadow 0.3s ease;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow);
 }
 
-.daily-card:hover {
-    box-shadow: var(--shadow-hover);
+#tabs button {
+    flex: 1;
+    padding: 1rem 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #95a5a6;
+    transition: all 0.3s ease;
 }
 
-/* 卡片標題 - 可點擊區域 */
+#tabs button.active {
+    color: var(--primary-color);
+    border-bottom: 3px solid var(--primary-color);
+    background-color: #ecf0f1;
+}
+
+/* 隱藏/顯示內容 */
+.hidden {
+    display: none !important;
+}
+
+/* --- 2. 行程時間軸樣式 --- */
+
+.daily-card {
+    background: var(--card-background);
+    margin-bottom: 1.5rem;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
 .toggle-header {
+    padding: 1rem;
     background-color: var(--primary-color);
     color: white;
-    padding: 15px 20px;
     cursor: pointer;
+    margin-top: 0;
     font-size: 1.2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
+/* 展開/折疊指示器 */
 .toggle-header::after {
-    content: '🔽'; /* 摺疊箭頭 */
-    transition: transform 0.3s ease;
-}
-
-/* 摺疊內容 */
-.activities-list {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.5s ease-in-out, padding 0.5s ease;
-    padding: 0 20px;
-}
-
-/* 展開狀態 */
-.daily-card.expanded .activities-list {
-    max-height: 2000px; /* 足夠大的值 */
-    padding: 15px 20px;
+    content: '🔽';
+    transition: transform 0.3s;
 }
 
 .daily-card.expanded .toggle-header::after {
-    content: '🔼'; /* 展開箭頭 */
+    content: '🔼';
     transform: rotate(180deg);
 }
 
-/* 天氣佔位符 */
-.weather-placeholder {
-    padding: 10px 20px 0;
-    font-size: 0.9rem;
-    color: var(--sub-text-color);
-    display: flex;
-    align-items: center;
+.activities-list {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease-in-out;
+    padding: 0 1rem; 
 }
 
-.weather-result img {
-    width: 24px;
-    height: 24px;
-    margin-right: 5px;
+.daily-card.expanded .activities-list {
+    max-height: 2000px; /* 足夠大的數值以顯示所有內容 */
+    padding: 1rem;
 }
 
-/* --- 4. 單一活動項目的樣式 --- */
+
+/* 活動單項 */
 .activity-item {
     display: flex;
-    padding: 15px 0;
-    border-left: 3px solid #ccc;
+    border-left: 3px solid var(--border-color);
+    padding: 1rem 0 1rem 1.5rem;
     position: relative;
 }
 
 .activity-item:last-child {
-    border-left: none; /* 最後一項不顯示時間線 */
-}
-
-/* 時間線上的圓點 */
-.activity-item::before {
-    content: '';
-    position: absolute;
-    left: -8px;
-    top: 20px;
-    width: 13px;
-    height: 13px;
-    border-radius: 50%;
-    background-color: #ccc;
-    border: 2px solid var(--card-background);
-    z-index: 1;
+    border-left: none; /* 最後一項不畫線 */
 }
 
 .activity-time {
-    flex-shrink: 0;
-    width: 100px;
     font-weight: bold;
+    min-width: 80px;
     color: var(--primary-color);
+    position: absolute;
+    left: 0;
+    top: 1rem;
+    transform: translateX(-100%);
+    padding-right: 1.5rem;
+    text-align: right;
 }
 
 .activity-details {
     flex-grow: 1;
-    padding-left: 15px;
 }
 
 .activity-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 5px;
-}
-
-.activity-icon {
-    font-size: 1.2rem;
-    margin-right: 5px;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
 }
 
 .activity-meta small {
-    display: inline-block;
-    margin-right: 15px;
-    color: var(--sub-text-color);
+    display: block;
+    color: #7f8c8d;
     font-size: 0.85rem;
 }
 
 .activity-notes {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px dashed var(--border-color);
     font-size: 0.95rem;
-    margin-top: 5px;
-    padding-right: 10px;
 }
 
-/* 不同活動類型的顏色標示 */
-.travel-flight::before { background-color: #36A2EB; } /* 藍色 - 交通 */
-.travel-food::before { background-color: #FF6384; }   /* 紅色 - 餐飲 */
-.travel-landmark::before { background-color: #FFCE56; } /* 黃色 - 景點 */
-.travel-transport::before { background-color: #4BC0C0; } /* 青色 - 地鐵/新幹線 */
-.travel-sports::before { background-color: #9966FF; } /* 紫色 - 滑雪 */
+/* 活動類型顏色標記 (左側線條) */
+.travel-flight { border-color: #e74c3c; } /* 紅色 - 航班 */
+.travel-food { border-color: #f39c12; }    /* 黃色 - 餐飲 */
+.travel-landmark { border-color: #9b59b6; } /* 紫色 - 景點 */
+.travel-transport { border-color: #34495e; } /* 深藍 - 交通 */
+.travel-sports { border-color: #1abc9c; } /* 青色 - 體育活動 */
 
-/* --- 5. 導航按鈕與標籤 (Tags) --- */
+/* 亮點標籤 */
+.tag {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-size: 0.8rem;
+    font-weight: normal;
+    margin-right: 5px;
+}
+
+.tag.red { background-color: #f9e2e1; color: #c0392b; }
+.tag.green { background-color: #e9f5e9; color: #27ae60; }
+.tag.orange { background-color: #fdebd0; color: #d35400; }
+
+/* 導航按鈕 */
 .nav-button {
     display: inline-block;
-    background-color: #e0e7ff; /* 淺藍色背景 */
-    color: var(--primary-color);
+    background: var(--secondary-color);
+    color: white;
     padding: 5px 10px;
     border-radius: 5px;
     text-decoration: none;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     margin-top: 10px;
-    transition: background-color 0.2s;
-    font-weight: 600;
+    transition: background 0.2s;
 }
 
 .nav-button:hover {
-    background-color: #c5d0fc;
+    background: #27ae60;
 }
 
-/* 亮點提示標籤 */
-.tag {
-    display: inline-block;
-    font-size: 0.75rem;
-    padding: 2px 6px;
-    border-radius: 4px;
-    margin-left: 5px;
+/* 天氣顯示 */
+.weather-placeholder {
+    padding: 0 1rem 0.5rem 1rem;
+    background: #eaf2f8; /* 淺藍色背景 */
+    color: #2c3e50;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.weather-result img {
+    width: 30px;
+    height: 30px;
+    margin-right: 5px;
+}
+
+.weather-result {
+    display: flex;
+    align-items: center;
+}
+
+/* --- 3. 旅遊工具箱樣式 --- */
+.toolkit-section {
+    background: var(--card-background);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.toolkit-section h2 {
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+}
+
+.toolkit-section h3 {
+    margin-top: 1rem;
+    color: #2c3e50;
+    font-size: 1.1rem;
+}
+
+.info-box p {
+    margin-bottom: 0.5rem;
+}
+
+.alert-note {
+    color: #e74c3c;
+    font-style: italic;
     font-weight: bold;
-    white-space: nowrap;
+    margin-top: 1rem;
 }
 
-.tag.red {
-    background-color: #ffebee;
-    color: #e53935;
-    border: 1px solid #e53935;
-}
-.tag.orange {
-    background-color: #fff3e0;
-    color: #ff9800;
-    border: 1px solid #ff9800;
-}
-.tag.green {
-    background-color: #e8f5e9;
-    color: #43a047;
-    border: 1px solid #43a047;
-}
-
-
-/* --- 6. 記帳功能樣式 (Budget Tracker) --- */
-
-/* 記帳表單 */
-#add-transaction-form {
+/* --- 4. 記帳功能樣式 --- */
+#budget-summary {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
     gap: 10px;
-    padding: 15px;
-    border-left: 5px solid #FFCE56; /* 購物/消費色 */
+    text-align: center;
+    padding: 1rem;
+    background: #ecf0f1;
+    border-radius: var(--radius);
+    font-size: 0.95rem;
 }
 
-#add-transaction-form input[type="number"],
-#add-transaction-form select,
-#add-transaction-form input[type="text"],
-#add-transaction-form button {
+#budget-summary p {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#budget-summary span {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: var(--secondary-color);
+}
+
+/* 表單樣式 */
+#add-transaction-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 1.5rem;
+    background: #fff;
+    border: 1px solid #bdc3c7;
+}
+
+#add-transaction-form input, 
+#add-transaction-form select {
     padding: 10px;
-    border: 1px solid #ddd;
+    border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 1rem;
-    width: 100%;
+}
+
+#add-transaction-form input#amount {
+    flex: 1 1 100px;
+}
+
+#add-transaction-form select {
+    flex: 1 1 120px;
+}
+
+#add-transaction-form input#description {
+    flex: 1 1 180px;
 }
 
 #add-transaction-form button {
-    background-color: var(--accent-color);
-    color: white;
-    font-weight: bold;
+    flex: 1 1 100%;
+    padding: 10px;
+    margin-top: 0;
+    background: var(--primary-color);
+    border: none;
     cursor: pointer;
-    transition: background-color 0.2s;
-    grid-column: span 2; /* 按鈕佔兩欄 */
+    font-weight: bold;
+    transition: background 0.2s;
 }
 
 #add-transaction-form button:hover {
-    background-color: #e64a19;
+    background: #2980b9;
 }
 
-/* 支出明細列表 */
-#transactions-list-container {
-    background-color: var(--card-background);
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    box-shadow: var(--shadow-light);
+/* 交易列表 */
+#transactions-list-container h3 {
+    margin-bottom: 1rem;
 }
 
 #transactions-list {
@@ -324,7 +349,7 @@ h2, h3 {
     justify-content: space-between;
     align-items: center;
     padding: 10px 0;
-    border-bottom: 1px dashed #eee;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .transaction-item:last-child {
@@ -332,104 +357,105 @@ h2, h3 {
 }
 
 .transaction-detail {
-    flex-grow: 1;
-}
-
-.transaction-detail strong {
-    font-size: 1.1rem;
-    color: var(--accent-color);
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 .transaction-category {
-    font-size: 0.9rem;
-    margin-left: 8px;
-    color: var(--primary-color);
+    font-size: 0.85rem;
+    color: #7f8c8d;
 }
 
-.transaction-desc {
-    color: var(--sub-text-color);
-    font-size: 0.9rem;
-    margin-left: 8px;
+.transaction-actions {
+    display: flex;
+    gap: 5px;
+    align-items: center;
 }
 
-.transaction-actions button {
+.delete-btn, .edit-btn {
     background: none;
     border: none;
     cursor: pointer;
     font-size: 1rem;
-    margin-left: 5px;
-    padding: 3px;
+    padding: 5px;
 }
 
-.transaction-actions small {
-    color: var(--sub-text-color);
-    margin-right: 5px;
-}
-
-/* --- 7. 純 CSS 圓餅圖樣式 (Pie Chart) --- */
-#chart-container h3 {
-    border-bottom: 1px solid #eee;
-    padding-bottom: 10px;
+/* 圖表樣式 */
+#chart-container {
+    text-align: center;
 }
 
 .pie-chart-wrapper {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
     align-items: center;
-    padding: 10px 0;
-    gap: 20px;
+    margin-top: 1.5rem;
 }
 
 .pie-chart {
-    width: 120px;
-    height: 120px;
+    width: 150px;
+    height: 150px;
     border-radius: 50%;
-    /* 圓餅圖的實際背景將由 JavaScript 使用 conic-gradient 設置 */
-    flex-shrink: 0;
+    margin-bottom: 1.5rem;
+    background: conic-gradient(
+        #E0E0E0 0% 100% /* 預設灰色 */
+    );
 }
 
 .chart-legend {
-    flex-grow: 1;
+    text-align: left;
+    width: 100%;
+    max-width: 300px;
+    font-size: 0.9rem;
 }
 
 .legend-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 0.9rem;
-    padding: 4px 0;
-    border-bottom: 1px dotted #eee;
+    padding: 5px 0;
+    border-bottom: 1px dotted #ccc;
 }
 
 .legend-color {
     display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-radius: 2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
     margin-right: 8px;
 }
 
-/* 響應式調整 */
-@media (max-width: 600px) {
+.legend-item small {
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+
+/* --- 5. 媒體查詢 (響應式設計) --- */
+@media (min-width: 600px) {
+    #add-transaction-form {
+        flex-wrap: nowrap;
+    }
+
+    #add-transaction-form input#amount,
+    #add-transaction-form select {
+        flex: 0 0 auto; 
+    }
+    
+    #add-transaction-form button {
+        flex: 0 0 auto;
+        width: 100px; 
+    }
+    
     .pie-chart-wrapper {
-        flex-direction: column;
+        flex-direction: row;
+        justify-content: space-around;
         align-items: flex-start;
     }
     
-    .pie-chart {
-        margin-bottom: 15px;
-    }
-
-    #add-transaction-form {
-        grid-template-columns: 1fr;
-    }
-    
-    #add-transaction-form input[type="text"],
-    #add-transaction-form button {
-        grid-column: span 1;
-    }
-
-    .activity-time {
-        width: 80px;
+    .chart-legend {
+        width: 50%;
     }
 }

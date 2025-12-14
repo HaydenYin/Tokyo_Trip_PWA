@@ -636,7 +636,7 @@ function loadToolkitData() {
         <div class="info-box">
             <p><strong>警察/火災/救護:</strong> 110 / 119</p>
             <p><strong>飯店電話:</strong> +81 3-6689-5511</p>
-            <p><strong>您的緊急聯絡人:</strong> Yin Hong +852 9653 6696</p>
+            <p><strong>您的緊急聯絡人:</strong> 哥哥 (Yin Hong) +852 96536696</p>
             <p class="alert-note">${info.emergencyContacts.notes}</p>
         </div>
     `;

@@ -3,32 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>東京五日遊 - LUNA</title>
-    <link rel="stylesheet" href="style.css">
+    <title>東京旅遊指南 PWA</title>
+    
     <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#3498db">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png"> 
+    
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <header>
-        <h1>東京旅行助手</h1>
-        <nav class="tab-bar">
-            <button id="tab-timeline" class="active">行程</button>
-            <button id="tab-toolkit">工具箱</button>
-        </nav>
+        <h1>🗼 2025 東京之旅</h1>
     </header>
 
-    <main id="timeline" class="page active">
+    <div id="app-container">
+        
+        <nav id="tabs">
+            <button id="tab-timeline" class="active">🗓️ 行程時間軸</button>
+            <button id="tab-toolkit">🛠️ 旅遊工具箱</button>
+        </nav>
+
+        <main id="timeline">
+            <div id="timeline-container">
+                </div>
         </main>
 
-    <main id="toolkit" class="page hidden">
-        <section id="flight-info"></section>
-        <section id="accommodation-info"></section>
-        <section id="emergency-contact"></section>
-        <section id="budget-tracker">
-            <h2>💰 記帳/預算表</h2>
-            <div id="transactions-list"></div>
+        <section id="toolkit" class="hidden">
+            
+            <div id="flight-info" class="toolkit-section">
+                </div>
+
+            <div id="accommodation-info" class="toolkit-section">
+                </div>
+            
+            <div id="emergency-contact" class="toolkit-section">
+                </div>
+
+            <div id="budget-tracker" class="toolkit-section">
+                </div>
+
         </section>
-    </main>
+    </div>
 
     <script src="script.js"></script>
 </body>

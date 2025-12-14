@@ -16,7 +16,7 @@ const tripData = {
       "flights": {
         "outbound": {
           "flightNumber": "HX608",
-          // *** 修正: 去程抵達時間由 14:00-16:00 修正為 14:25 ***
+          // *** 修正點 1: 去程抵達時間修正為 14:25 (用於工具箱) ***
           "departureTime": "09:20",
           "departureAirport": "香港國際機場 T1 (HKG)",
           "arrivalTime": "14:25", 
@@ -24,7 +24,6 @@ const tripData = {
         },
         "return": {
           "flightNumber": "HX635",
-          // *** 修正: 回程抵達時間由空值修正為 21:30 ***
           "departureTime": "17:05",
           "departureAirport": "NRT 成田國際機場 T1",
           "arrivalTime": "21:30",
@@ -32,11 +31,12 @@ const tripData = {
         }
       },
       "emergencyContacts": {
-        // *** 修正: 飯店電話和緊急聯絡人資訊已更新 ***
+        // *** 修正點 2: 緊急聯絡資訊已更新 ***
         "hotelPhone": "+81 3-6689-5511",
         "contactName": "哥哥 (Yin Hong)",
         "contactPhone": "+852 96536696",
-        "notes": "請在此處填寫緊急聯絡資訊。"
+        // 清理備註，因為聯繫資訊已完善
+        "notes": "請保存飯店電話和聯絡人資訊。" 
       }
     },
     "dailyItineraries": [
@@ -52,7 +52,8 @@ const tripData = {
             "notes": ""
           },
           {
-            "time": "14:25", // 配合新抵達時間
+            // *** 修正點 3: 行程表中的時間修正為 14:25 ***
+            "time": "14:25", 
             "activity": "抵達、入境與交通",
             "location": "NRT/HND→上野",
             "transport": "機場交通(60-90 分鐘)",

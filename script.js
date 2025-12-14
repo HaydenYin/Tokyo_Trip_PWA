@@ -1,8 +1,8 @@
 // --- 0. PWA Service Worker 註冊 (必須放在最前面) ---
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    // 確保路徑是正確的
-    navigator.serviceWorker.register('service-worker.js')
+    // 【修正點】使用相對路徑註冊 service worker，以適用 GitHub Pages 的子路徑
+    navigator.serviceWorker.register('service-worker.js') 
       .then(registration => console.log('SW 註冊成功:', registration.scope))
       .catch(err => console.error('SW 註冊失敗:', err));
   });
@@ -10,7 +10,6 @@ if ('serviceWorker' in navigator) {
 
 // --- 1. 數據定義 ---
 
-// 假設您已經將所有 JSON 內容貼入到這個變量中
 const tripData = {
     "tripInfo": {
       "hotel": "上野御徒町WING精選國際飯店",
@@ -423,10 +422,7 @@ function parseActivity(activity, notes) {
 }
 
 /**
- * 創建 Google Maps 導航連結 (已修正語法錯誤)
- */
-/**
- * 創建 Google Maps 導航連結 (修正為標準 URL)
+ * 創建 Google Maps 搜尋連結 (修正為標準查詢 q)
  */
 function createNavigationButton(location) {
     // 檢查是否為不需要導航/查詢的活動
@@ -435,8 +431,7 @@ function createNavigationButton(location) {
         return '';
     }
     
-    // ✅ 這是修正後的 Google Maps 標準查詢 URL 格式
-    // 使用 'q=' 參數，讓 Google Maps 直接搜尋並顯示這個地點
+    // 【修正點】使用標準 Google Maps 查詢參數 'q=' 替代 daddr/dir
     const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`; 
 
     return `<a href="${mapUrl}" target="_blank" class="nav-button">📍 搜尋 ${location.split('→')[0]}</a>`;
@@ -583,12 +578,14 @@ function loadToolkitData() {
     `;
 
     // 2. 渲染住宿資訊
+    // 【修正點】使用標準 Google Maps 查詢連結
+    const hotelMapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(info.hotel)}`;
     document.getElementById('accommodation-info').innerHTML = `
         <h2>🏠 住宿資訊</h2>
         <div class="info-box">
             <p><strong>飯店:</strong> ${info.hotel}</p>
             <p><strong>地點:</strong> ${info.location}</p>
-            <a href="http://googleusercontent.com/maps.google.com/?daddr=${encodeURIComponent(info.hotel)}" target="_blank" class="nav-button">📍 導航至 飯店</a>
+            <a href="${hotelMapUrl}" target="_blank" class="nav-button">📍 搜尋 飯店位置</a>
         </div>
         
     `;
@@ -607,6 +604,7 @@ function loadToolkitData() {
     // 4. 渲染記帳功能介面
     const budgetTrackerContainer = document.getElementById('budget-tracker');
 
+    // 重新渲染記帳表單結構 (不變)
     budgetTrackerContainer.innerHTML = `
         <h2>💰 記帳/預算表</h2>
         <div id="budget-summary" class="info-box">
@@ -647,7 +645,8 @@ function loadToolkitData() {
 
 // 獲取現有的交易記錄
 function getTransactions() {
-    return JSON.parse(localStorage.getItem('transactions') || '[]');
+    // 確保最新的交易在前面 (unshift 放入，所以這裡不需要 reverse)
+    return JSON.parse(localStorage.getItem('transactions') || '[]'); 
 }
 
 // 處理新增交易
@@ -664,6 +663,7 @@ function handleAddTransaction(event) {
     }
 
     const newTransaction = {
+        // 使用 Date.now() 確保 ID 唯一
         id: Date.now(), 
         amount: amount,
         category: category,
@@ -672,11 +672,29 @@ function handleAddTransaction(event) {
     };
 
     const transactions = getTransactions();
-    transactions.unshift(newTransaction); 
+    transactions.unshift(newTransaction); // 新增到列表最前面
     localStorage.setItem('transactions', JSON.stringify(transactions));
 
     // 重置表單並重新渲染
     document.getElementById('add-transaction-form').reset();
+    renderBudgetTracker();
+}
+
+/**
+ * 【新增功能】處理刪除交易
+ */
+function handleDeleteTransaction(id) {
+    if (!confirm('您確定要刪除這筆交易嗎？')) {
+        return;
+    }
+    
+    let transactions = getTransactions();
+    // 過濾掉與傳入 ID 相同的交易
+    transactions = transactions.filter(t => t.id !== id);
+    
+    localStorage.setItem('transactions', JSON.stringify(transactions));
+    
+    // 重新渲染列表和總結
     renderBudgetTracker();
 }
 
@@ -698,20 +716,22 @@ function renderBudgetTracker() {
             dailySpend += t.amount;
         }
 
-        // 交易列表 HTML
+        // 交易列表 HTML - 【重要修正：新增刪除按鈕】
         listHtml += `
             <li class="transaction-item category-${t.category}">
                 <div class="transaction-detail">
                     <strong>¥ ${t.amount.toFixed(0)}</strong>
                     <span class="transaction-desc">${t.description || t.category}</span>
                 </div>
-                <small>${t.date}</small>
+                <div class="transaction-actions">
+                    <small>${t.date}</small>
+                    <button class="delete-btn" data-id="${t.id}">🗑️</button> 
+                </div>
             </li>
         `;
     });
 
     // 更新總結區塊
-    // 總結區塊的 ID 是在 loadToolkitData 中創建的
     const totalBudgetElement = document.getElementById('total-budget');
     const totalSpendElement = document.getElementById('total-spend');
     const dailySpendElement = document.getElementById('daily-spend');
@@ -721,6 +741,15 @@ function renderBudgetTracker() {
     if (dailySpendElement) dailySpendElement.textContent = `¥ ${dailySpend.toFixed(0)}`;
 
     if (list) list.innerHTML = listHtml;
+    
+    // 【重要：綁定刪除按鈕的事件】
+    document.querySelectorAll('.delete-btn').forEach(button => {
+        button.addEventListener('click', (event) => {
+            // 獲取按鈕上儲存的交易 ID (將其從字串轉換為數字)
+            const transactionId = parseInt(event.currentTarget.dataset.id);
+            handleDeleteTransaction(transactionId);
+        });
+    });
 }
 
 

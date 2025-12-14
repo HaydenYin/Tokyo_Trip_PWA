@@ -506,7 +506,7 @@ async function fetchWeatherData(locationName, targetDate) {
 }
 
 
-// --- 4. 行程渲染主函數 ---
+// --- 4. 行程渲染主函數 (新增折疊功能) ---
 
 /**
  * 渲染每日行程卡片
@@ -517,6 +517,13 @@ function renderItineraries() {
     tripData.dailyItineraries.forEach(async (day, index) => { 
         const dayCard = document.createElement('div');
         dayCard.className = 'daily-card';
+
+        // --- NEW: 預設展開第一個卡片 ---
+        const isFirstDay = index === 0;
+        if (isFirstDay) {
+             dayCard.classList.add('expanded');
+        }
+        // --- END NEW ---
 
         let mainLocation = (day.date.includes('岩原')) ? 'Yuzawa,JP' : TOKYO_CITY_NAME;
         
@@ -553,18 +560,26 @@ function renderItineraries() {
         
         dayCard.innerHTML = `
             <div class="weather-placeholder">${weatherHtml}</div>
-            <h2>${day.date}：${day.title}</h2>
+            <h2 class="toggle-header">${day.date}：${day.title}</h2> 
             <div class="activities-list">
                 ${activitiesHtml}
             </div>
         `;
         timelineContainer.appendChild(dayCard);
+
+        // --- NEW: 綁定點擊事件 ---
+        const header = dayCard.querySelector('.toggle-header');
+        header.addEventListener('click', () => {
+             // 切換整個卡片的 'expanded' 狀態
+             dayCard.classList.toggle('expanded'); 
+        });
+        // --- END NEW ---
     });
 }
 
 
 // --- 5. 工具箱數據渲染主函數 (包含記帳容器結構) ---
-
+// (此函數內容與之前版本一致)
 /**
  * 渲染旅遊工具箱資訊 (航班、住宿、緊急聯絡、記帳介面)
  */
@@ -654,6 +669,7 @@ function loadToolkitData() {
 
 
 // --- 6. 離線記帳 (LocalStorage) 函數 ---
+// (以下所有記帳相關函數與之前版本一致)
 
 // 輔助函數：從 localStorage 獲取所有交易
 function getTransactions() {

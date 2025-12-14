@@ -1,408 +1,427 @@
-/* ========================================= */
-/* --- 1. PWA 基礎 Reset 與佈局 (手機優化) --- */
-/* ========================================= */
+/* --- Global Styles --- */
 body {
     font-family: 'Helvetica Neue', Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #F8F8F8; /* 淺灰色背景，提供層次感 */
+    background-color: #f4f7f6;
     color: #333;
-    line-height: 1.5;
+    line-height: 1.6;
 }
 
-/* 將所有 main 元素設置基礎 padding */
-main {
-    padding: 0 15px; /* 頁面左右內邊距 */
-}
-
-/* 讓 Header 固定在頂部，提供應用程式感 */
 header {
-    background-color: white;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    padding: 10px 0 0; 
-    position: sticky; 
-    top: 0;
-    z-index: 100; /* 確保 Header 浮動在內容之上 */
+    background-color: #3f51b5;
+    color: white;
+    padding: 20px 15px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 header h1 {
-    text-align: center;
     margin: 0;
-    padding: 0 0 10px;
-    font-size: 1.5em;
-    color: #333;
+    font-size: 24px;
 }
 
+main {
+    padding: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+}
 
-/* ========================================= */
-/* --- 2. Tab Bar 導航列樣式 --- */
-/* ========================================= */
+/* --- Tab Navigation --- */
 .tab-bar {
     display: flex;
     justify-content: space-around;
-    border-bottom: 1px solid #E0E0E0;
-    margin-bottom: 15px;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
 }
 
 .tab-bar button {
     flex-grow: 1;
-    padding: 12px 0;
-    cursor: pointer;
-    background: none;
+    padding: 15px 10px;
     border: none;
-    font-size: 1.05em;
+    background-color: transparent;
+    cursor: pointer;
+    font-size: 16px;
     color: #555;
-    transition: all 0.2s;
-    outline: none;
-    /* 移除 iOS Safari 上的點擊高光 */
-    -webkit-tap-highlight-color: transparent;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
 }
 
-/* Tab 按鈕：活動狀態 (使用 Manifest 的主題色 #6495ED) */
 .tab-bar button.active {
-    color: #6495ED; 
-    border-bottom: 3px solid #6495ED; 
-    font-weight: bold;
+    color: #3f51b5;
+    border-bottom: 3px solid #3f51b5;
+    background-color: #e8eaf6;
 }
 
-/* 隱藏非活動的頁面 */
-.page.hidden {
-    display: none !important; 
+.hidden {
+    display: none !important;
 }
 
-
-/* ========================================= */
-/* --- 3. 行程時間線 (Timeline) 樣式 --- */
-/* ========================================= */
+/* --- Daily Itinerary Card --- */
 .daily-card {
-    background: white;
-    margin: 15px 0;
-    padding: 15px;
+    background-color: white;
     border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 25px;
+    padding: 20px;
 }
 
+/* --- NEW: Collapsible Header/Toggle Style --- */
 .daily-card h2 {
-    border-bottom: 2px solid #EEE;
-    padding-bottom: 5px;
+    cursor: pointer; /* 顯示為可點擊 */
+    user-select: none;
+    font-size: 1.5em;
     margin-top: 0;
-    margin-bottom: 10px;
-    font-size: 1.3em;
+    padding: 5px 30px 5px 0; 
+    position: relative;
+    transition: background-color 0.2s;
+    border-radius: 4px;
 }
 
-/* 天氣區塊 */
+.daily-card h2:hover {
+    background-color: #f0f0f0;
+}
+
+/* Toggle Icon Style */
+.daily-card h2::after {
+    content: '▶'; /* 預設右箭頭 (已折疊) */
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    color: #3f51b5;
+    transition: transform 0.3s ease;
+}
+
+/* Expanded state icon */
+.daily-card.expanded h2::after {
+    content: '▼'; /* 展開時變為下箭頭 */
+}
+
+/* The collapsible content container */
+.activities-list {
+    max-height: 0; /* 預設隱藏 */
+    overflow: hidden;
+    transition: max-height 0.4s ease-out; /* 啟用平滑過渡 */
+    padding-top: 0;
+}
+
+/* Expanded state content */
+.daily-card.expanded .activities-list {
+    max-height: 2000px; /* 一個足夠大的值來展開所有內容 */
+    padding-top: 15px;
+}
+/* --- END NEW COLLAPSIBLE STYLES --- */
+
+
 .weather-placeholder {
+    margin-bottom: 10px;
     padding: 10px;
-    margin-bottom: 15px;
-    background-color: #E6F3FF; /* 淺藍色背景，適合天氣資訊 */
+    background-color: #e8eaf6;
     border-radius: 4px;
-    font-size: 0.95em;
     display: flex;
     align-items: center;
-    gap: 8px;
+    font-size: 0.9em;
+    color: #3f51b5;
 }
 .weather-result img {
     width: 30px;
     height: 30px;
-    vertical-align: middle;
+    margin-right: 5px;
 }
 
-/* 活動細節樣式 */
+/* --- Activity Items --- */
 .activity-item {
-    padding: 10px 0;
-    border-bottom: 1px dashed #DDD;
-    display: flex; 
-    gap: 15px; 
-}
-.activity-item:last-child {
-    border-bottom: none; /* 最後一項不顯示虛線 */
+    display: flex;
+    margin-bottom: 15px;
+    padding-left: 15px;
+    border-left: 3px solid #ccc;
+    position: relative;
 }
 
 .activity-time {
+    flex-shrink: 0;
+    width: 70px;
     font-weight: bold;
-    color: #333;
-    flex-shrink: 0; /* 時間欄位不縮小 */
-    width: 60px; /* 固定時間欄位寬度 */
-    text-align: right;
+    color: #3f51b5;
+    margin-right: 15px;
     padding-top: 3px;
 }
+
 .activity-details {
     flex-grow: 1;
+    padding-bottom: 10px;
 }
 
 .activity-header {
+    display: flex;
+    align-items: center;
     font-size: 1.1em;
-    margin-bottom: 3px;
-    color: #000;
+    margin-bottom: 5px;
 }
+
+.activity-icon {
+    margin-right: 8px;
+    font-size: 1.2em;
+}
+
 .activity-meta small {
-    display: block;
+    display: inline-block;
+    margin-right: 10px;
     color: #777;
-    margin-top: 3px;
-    font-size: 0.8em;
+    font-size: 0.85em;
 }
 
 .activity-notes {
-    font-size: 0.9em;
-    line-height: 1.4;
-    margin: 5px 0 0;
+    margin: 5px 0 10px 0;
+    font-size: 0.95em;
+    color: #444;
 }
 
-/* 導航按鈕樣式 */
 .nav-button {
-    display: block; 
-    width: 100%;
-    text-align: center;
-    padding: 8px;
-    margin-top: 10px;
-    background-color: #6495ED; 
-    color: white !important; /* 確保文字是白色 */
+    display: inline-block;
+    background-color: #4CAF50; /* Green */
+    color: white;
+    padding: 5px 10px;
     text-decoration: none;
     border-radius: 4px;
-    font-weight: 600;
-    font-size: 0.95em;
-    transition: background-color 0.2s;
-    /* 移除 iOS Safari 上的點擊高光 */
-    -webkit-tap-highlight-color: transparent;
+    font-size: 0.85em;
+    margin-top: 5px;
+    transition: background-color 0.3s;
 }
+
 .nav-button:hover {
-    background-color: #4169E1;
+    background-color: #45a049;
 }
 
-
-/* --- 活動類型主題色 (可選) --- */
-.travel-flight { border-left: 5px solid #00BFFF; }
-.travel-food { border-left: 5px solid #FF8C00; }
-.travel-landmark { border-left: 5px solid #3CB371; }
-.travel-sports { border-left: 5px solid #4682B4; }
-.travel-transport { border-left: 5px solid #5F9EA0; }
-
-
-/* --- 亮點標籤 --- */
+/* Tags Style */
 .tag {
     display: inline-block;
-    padding: 2px 6px;
-    margin-left: 5px;
+    font-size: 0.75em;
+    padding: 3px 6px;
     border-radius: 4px;
-    font-size: 0.7em; /* 稍微縮小字體 */
-    font-weight: 600;
-    line-height: 1.5;
-    white-space: nowrap;
-}
-.tag.red { background-color: #FFE0E0; color: #CC0000; } 
-.tag.orange { background-color: #FFF3E0; color: #E65100; } 
-.tag.green { background-color: #E8F5E9; color: #388E3C; } 
-
-
-/* ========================================= */
-/* --- 4. 工具箱 (Toolkit) 樣式 --- */
-/* ========================================= */
-/* 讓工具箱的卡片像行程卡片一樣置中顯示 */
-#toolkit {
-    padding: 0;
+    color: white;
+    margin-left: 5px;
+    font-weight: normal;
 }
 
+.tag.red { background-color: #F44336; }
+.tag.orange { background-color: #FF9800; }
+.tag.green { background-color: #009688; }
+
+/* Activity Type Coloring (Optional Visual Cues) */
+.travel-flight { border-left-color: #3f51b5; }
+.travel-food { border-left-color: #FF6384; }
+.travel-landmark { border-left-color: #FFCE56; }
+.travel-transport { border-left-color: #36A2EB; }
+.travel-sports { border-left-color: #4CAF50; }
+
+
+/* --- Toolkit/Info Sections --- */
 .info-box {
-    background: white;
-    margin: 0 15px 20px 15px; /* 調整 margin 讓它看起來像單獨的卡片 */
+    background-color: #f9f9f9;
     padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    border-radius: 4px;
+    margin-bottom: 15px;
+    border: 1px solid #eee;
 }
-.info-box h3 {
-    border-bottom: 1px solid #EEE;
+
+.info-box h2, .info-box h3 {
+    color: #3f51b5;
+    border-bottom: 1px solid #e0e0e0;
     padding-bottom: 5px;
     margin-top: 0;
-}
-.alert-note {
-    color: #D32F2F;
-    font-weight: bold;
-    margin-top: 10px;
-    padding-top: 5px;
-    border-top: 1px dashed #FFCDD2;
+    margin-bottom: 10px;
+    font-size: 1.2em;
 }
 
-/* --- 記帳表單樣式 --- */
+.alert-note {
+    color: #d32f2f;
+    background-color: #ffcdd2;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+/* --- Budget Tracker/Form Styles --- */
 #add-transaction-form {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 3fr 1.5fr;
+    gap: 10px;
     align-items: center;
+    padding: 15px;
 }
 
 #add-transaction-form input, 
-#add-transaction-form select {
-    /* 讓金額和類別各佔一半寬度 */
-    width: calc(50% - 4px); 
+#add-transaction-form select,
+#add-transaction-form button {
     padding: 10px;
-    border: 1px solid #E0E0E0;
+    border: 1px solid #ccc;
     border-radius: 4px;
-    box-sizing: border-box;
     font-size: 1em;
 }
 
-#add-transaction-form input[type="text"] {
-    width: 100%; /* 備註欄佔滿一行 */
-    margin-bottom: 0;
-}
-
 #add-transaction-form button {
-    /* 使用 nav-button 樣式，但覆蓋一些屬性 */
-    width: 100%; 
-    margin-top: 10px;
+    background-color: #3f51b5;
+    color: white;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.3s;
 }
 
-/* --- 記帳總結樣式 --- */
-#budget-summary p {
-    display: flex;
-    justify-content: space-between;
-    font-size: 1.1em;
-    padding: 3px 0;
-}
-#budget-summary strong {
-    font-weight: 600;
-}
-#budget-summary #total-spend {
-    color: #D32F2F; /* 紅色顯示總支出 */
-    font-weight: bold;
+#add-transaction-form button:hover {
+    background-color: #303f9f;
 }
 
-/* --- 記帳列表樣式 --- */
-#transactions-list-container h3 {
-    margin: 15px;
-    border-bottom: 1px solid #EEE;
-    padding-bottom: 5px;
+/* Transactions List */
+#transactions-list-container {
+    margin-top: 20px;
 }
+
 #transactions-list {
     list-style: none;
     padding: 0;
 }
+
 .transaction-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 15px;
-    border-bottom: 1px solid #F0F0F0;
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
     background-color: white;
 }
-.transaction-item:nth-child(even) {
-    background-color: #FAFAFA; /* 斑馬紋樣式 */
+.transaction-item:last-child {
+    border-bottom: none;
 }
 
 .transaction-detail {
+    flex-grow: 1;
     display: flex;
     align-items: center;
-    flex-grow: 1;
 }
 
-/* 【新增】明細中的類別名稱 */
+.transaction-detail strong {
+    font-size: 1.1em;
+    color: #D32F2F; /* Red for expense */
+    margin-right: 10px;
+}
+
 .transaction-category {
     font-weight: bold;
-    font-size: 0.85em;
-    color: #6495ED; /* 使用主題色 */
+    color: #3f51b5;
     margin-right: 10px;
-    flex-shrink: 0;
+    font-size: 0.9em;
 }
 
-.transaction-item strong {
-    color: #D32F2F; 
-    font-size: 1.1em;
-    margin-right: 15px;
-    flex-shrink: 0;
-}
 .transaction-desc {
     font-size: 0.9em;
     color: #555;
-    flex-grow: 1;
-    /* 如果文字過長，截斷 */
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
 }
-/* 新增動作區塊的樣式 - 包含日期和按鈕 */
+
 .transaction-actions {
+    flex-shrink: 0;
     display: flex;
     align-items: center;
-    gap: 5px; /* 縮小按鈕間距 */
-    flex-shrink: 0;
-}
-.transaction-item small {
-    font-size: 0.75em;
-    color: #999;
-    flex-shrink: 0;
 }
 
-/* 編輯和刪除按鈕基礎樣式 */
-.edit-btn, .delete-btn {
-    background: none;
+.transaction-actions small {
+    margin-right: 10px;
+    color: #999;
+}
+
+.transaction-actions button {
+    padding: 5px;
+    margin-left: 5px;
     border: none;
+    background: #e0e0e0;
+    border-radius: 3px;
     cursor: pointer;
-    font-size: 1.1em;
-    padding: 5px; /* 增加點擊區域 */
-    line-height: 1;
-    transition: color 0.2s;
-    /* 移除 iOS Safari 上的點擊高光 */
-    -webkit-tap-highlight-color: transparent;
+    font-size: 0.8em;
+    transition: background-color 0.2s;
 }
 
-/* 刪除按鈕樣式 */
-.delete-btn {
-    color: #999;
-}
-.delete-btn:hover {
-    color: #CC0000; /* 懸停時變紅 */
+.transaction-actions button:hover {
+    background-color: #ccc;
 }
 
-/* 編輯按鈕樣式 */
-.edit-btn {
-    color: #6495ED; /* 使用主題色 */
-}
-.edit-btn:hover {
-    color: #4169E1;
-}
 
-/* --- 圓餅圖樣式 (純 CSS) --- */
+/* --- Pie Chart Styles (Pure CSS) --- */
 .pie-chart-wrapper {
     display: flex;
-    justify-content: center;
     align-items: flex-start;
-    padding: 10px 0;
     gap: 20px;
-    flex-wrap: wrap; /* 小螢幕時換行 */
+    margin-top: 10px;
 }
 
 .pie-chart {
     width: 150px;
     height: 150px;
     border-radius: 50%;
-    /* 確保在沒有數據時是灰色邊框，而不是空的 */
+    /* Default background for empty chart */
     background: #E0E0E0; 
+    flex-shrink: 0;
 }
 
 .chart-legend {
     flex-grow: 1;
-    min-width: 150px;
+    font-size: 0.9em;
 }
 
 .legend-item {
     display: flex;
     align-items: center;
-    gap: 8px;
     margin-bottom: 5px;
-    font-size: 0.9em;
-    color: #333;
+    color: #444;
 }
 
 .legend-color {
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    border-radius: 3px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
     flex-shrink: 0;
 }
-
 .legend-item small {
     margin-left: auto;
     font-weight: bold;
-    color: #D32F2F;
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 600px) {
+    header {
+        padding: 15px 10px;
+    }
+    main {
+        padding: 10px;
+    }
+    .daily-card {
+        padding: 15px;
+    }
+    .activity-item {
+        flex-direction: column;
+        padding-left: 0;
+    }
+    .activity-time {
+        width: auto;
+        margin-bottom: 5px;
+    }
+    .activity-details {
+        border-left: 3px solid #ccc;
+        padding-left: 15px;
+    }
+    #add-transaction-form {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto;
+    }
+    .pie-chart-wrapper {
+        flex-direction: column;
+        align-items: center;
+    }
+    .chart-legend {
+        width: 100%;
+        max-width: 300px;
+    }
 }

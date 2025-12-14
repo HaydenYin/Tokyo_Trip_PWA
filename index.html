@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>東京五日遊 - LUNA</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+
+    <header>
+        <h1>東京旅行助手</h1>
+        <nav class="tab-bar">
+            <button id="tab-timeline" class="active">行程</button>
+            <button id="tab-toolkit">工具箱</button>
+        </nav>
+    </header>
+
+    <main id="timeline" class="page active">
+        </main>
+
+    <main id="toolkit" class="page hidden">
+        <section id="flight-info"></section>
+        <section id="accommodation-info"></section>
+        <section id="emergency-contact"></section>
+        <section id="budget-tracker">
+            <h2>💰 記帳/預算表</h2>
+            <div id="transactions-list"></div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,314 @@
+/* ========================================= */
+/* --- 1. PWA 基礎 Reset 與佈局 (手機優化) --- */
+/* ========================================= */
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #F8F8F8; /* 淺灰色背景，提供層次感 */
+    color: #333;
+    line-height: 1.5;
+}
+
+/* 將所有 main 元素設置基礎 padding */
+main {
+    padding: 0 15px; /* 頁面左右內邊距 */
+}
+
+/* 讓 Header 固定在頂部，提供應用程式感 */
+header {
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 10px 0 0; 
+    position: sticky; 
+    top: 0;
+    z-index: 100; /* 確保 Header 浮動在內容之上 */
+}
+
+header h1 {
+    text-align: center;
+    margin: 0;
+    padding: 0 0 10px;
+    font-size: 1.5em;
+    color: #333;
+}
+
+
+/* ========================================= */
+/* --- 2. Tab Bar 導航列樣式 --- */
+/* ========================================= */
+.tab-bar {
+    display: flex;
+    justify-content: space-around;
+    border-bottom: 1px solid #E0E0E0;
+    margin-bottom: 15px;
+}
+
+.tab-bar button {
+    flex-grow: 1;
+    padding: 12px 0;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-size: 1.05em;
+    color: #555;
+    transition: all 0.2s;
+    outline: none;
+}
+
+/* Tab 按鈕：活動狀態 (使用 Manifest 的主題色 #6495ED) */
+.tab-bar button.active {
+    color: #6495ED; 
+    border-bottom: 3px solid #6495ED; 
+    font-weight: bold;
+}
+
+/* 隱藏非活動的頁面 */
+.page.hidden {
+    display: none !important; 
+}
+
+
+/* ========================================= */
+/* --- 3. 行程時間線 (Timeline) 樣式 --- */
+/* ========================================= */
+.daily-card {
+    background: white;
+    margin: 15px 0;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.daily-card h2 {
+    border-bottom: 2px solid #EEE;
+    padding-bottom: 5px;
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.3em;
+}
+
+/* 天氣區塊 */
+.weather-placeholder {
+    padding: 10px;
+    margin-bottom: 15px;
+    background-color: #E6F3FF; /* 淺藍色背景，適合天氣資訊 */
+    border-radius: 4px;
+    font-size: 0.95em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.weather-result img {
+    width: 30px;
+    height: 30px;
+    vertical-align: middle;
+}
+
+/* 活動細節樣式 */
+.activity-item {
+    padding: 10px 0;
+    border-bottom: 1px dashed #DDD;
+    display: flex; 
+    gap: 15px; 
+}
+.activity-item:last-child {
+    border-bottom: none; /* 最後一項不顯示虛線 */
+}
+
+.activity-time {
+    font-weight: bold;
+    color: #333;
+    flex-shrink: 0; /* 時間欄位不縮小 */
+    width: 60px; /* 固定時間欄位寬度 */
+    text-align: right;
+    padding-top: 3px;
+}
+.activity-details {
+    flex-grow: 1;
+}
+
+.activity-header {
+    font-size: 1.1em;
+    margin-bottom: 3px;
+    color: #000;
+}
+.activity-icon {
+    margin-right: 5px;
+}
+.activity-meta small {
+    display: block;
+    color: #777;
+    margin-top: 3px;
+    font-size: 0.8em;
+}
+
+.activity-notes {
+    font-size: 0.9em;
+    line-height: 1.4;
+    margin: 5px 0 0;
+}
+
+/* 導航按鈕樣式 */
+.nav-button {
+    display: block; 
+    width: 100%;
+    text-align: center;
+    padding: 8px;
+    margin-top: 10px;
+    background-color: #6495ED; 
+    color: white !important; /* 確保文字是白色 */
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.95em;
+    transition: background-color 0.2s;
+}
+.nav-button:hover {
+    background-color: #4169E1;
+}
+
+
+/* --- 活動類型主題色 (可選) --- */
+.travel-flight { border-left: 5px solid #00BFFF; }
+.travel-food { border-left: 5px solid #FF8C00; }
+.travel-landmark { border-left: 5px solid #3CB371; }
+.travel-sports { border-left: 5px solid #4682B4; }
+.travel-transport { border-left: 5px solid #5F9EA0; }
+
+
+/* --- 亮點標籤 --- */
+.tag {
+    display: inline-block;
+    padding: 2px 6px;
+    margin-left: 5px;
+    border-radius: 4px;
+    font-size: 0.7em; /* 稍微縮小字體 */
+    font-weight: 600;
+    line-height: 1.5;
+    white-space: nowrap;
+}
+.tag.red { background-color: #FFE0E0; color: #CC0000; } 
+.tag.orange { background-color: #FFF3E0; color: #E65100; } 
+.tag.green { background-color: #E8F5E9; color: #388E3C; } 
+
+
+/* ========================================= */
+/* --- 4. 工具箱 (Toolkit) 樣式 --- */
+/* ========================================= */
+/* 讓工具箱的卡片像行程卡片一樣置中顯示 */
+#toolkit {
+    padding: 0;
+}
+
+.info-box {
+    background: white;
+    margin: 0 15px 20px 15px; /* 調整 margin 讓它看起來像單獨的卡片 */
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+.info-box h3 {
+    border-bottom: 1px solid #EEE;
+    padding-bottom: 5px;
+    margin-top: 0;
+}
+.alert-note {
+    color: #D32F2F;
+    font-weight: bold;
+    margin-top: 10px;
+    padding-top: 5px;
+    border-top: 1px dashed #FFCDD2;
+}
+
+/* --- 記帳表單樣式 --- */
+#add-transaction-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+#add-transaction-form input, 
+#add-transaction-form select {
+    /* 讓金額和類別各佔一半寬度 */
+    width: calc(50% - 4px); 
+    padding: 10px;
+    border: 1px solid #E0E0E0;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 1em;
+}
+
+#add-transaction-form input[type="text"] {
+    width: 100%; /* 備註欄佔滿一行 */
+    margin-bottom: 0;
+}
+
+#add-transaction-form button {
+    /* 使用 nav-button 樣式，但覆蓋一些屬性 */
+    width: 100%; 
+    margin-top: 10px;
+}
+
+/* --- 記帳總結樣式 --- */
+#budget-summary p {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.1em;
+    padding: 3px 0;
+}
+#budget-summary strong {
+    font-weight: 600;
+}
+#budget-summary #total-spend {
+    color: #D32F2F; /* 紅色顯示總支出 */
+    font-weight: bold;
+}
+
+/* --- 記帳列表樣式 --- */
+#transactions-list-container h3 {
+    margin: 15px;
+    border-bottom: 1px solid #EEE;
+    padding-bottom: 5px;
+}
+#transactions-list {
+    list-style: none;
+    padding: 0;
+}
+.transaction-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    border-bottom: 1px solid #F0F0F0;
+    background-color: white;
+}
+.transaction-item:nth-child(even) {
+    background-color: #FAFAFA; /* 斑馬紋樣式 */
+}
+
+.transaction-detail {
+    display: flex;
+    align-items: center;
+}
+
+.transaction-item strong {
+    color: #D32F2F; 
+    font-size: 1.1em;
+    margin-right: 15px;
+    flex-shrink: 0;
+}
+.transaction-desc {
+    font-size: 0.9em;
+    color: #555;
+    flex-grow: 1;
+}
+.transaction-item small {
+    font-size: 0.75em;
+    color: #999;
+    flex-shrink: 0;
+}
+.transaction-item:nth-child(even) {
+    background-color: #FAFAFA;
+}

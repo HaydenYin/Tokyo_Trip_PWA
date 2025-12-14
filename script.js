@@ -8,8 +8,7 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// --- 1. 數據定義 ---
-
+// --- 1. 數據定義 (此處內容與之前版本一致) ---
 const tripData = {
     "tripInfo": {
       "hotel": "上野御徒町WING精選國際飯店",
@@ -367,7 +366,6 @@ const tripData = {
     ]
 };
 
-
 // 區域變數和常數
 const timelineContainer = document.getElementById('timeline');
 const toolkitContainer = document.getElementById('toolkit');
@@ -378,7 +376,7 @@ const OPENWEATHER_API_KEY = "03f4d869a3955b9e8d44ee21f3fbb343";
 const TOKYO_CITY_NAME = "Tokyo,JP"; 
 
 
-// --- 2. 行程與導航輔助函數 ---
+// --- 2. 行程與導航輔助函數 (與前一版本一致) ---
 
 /**
  * 根據活動內容決定卡片樣式/圖標，並識別亮點
@@ -422,17 +420,16 @@ function parseActivity(activity, notes) {
 }
 
 /**
- * 創建 Google Maps 搜尋連結 (修正為標準查詢 q)
+ * 創建 Google Maps 搜尋連結 (使用標準查詢 q)
  */
 function createNavigationButton(location) {
-    // 檢查是否為不需要導航/查詢的活動
     const skipLocations = ['飯店/上野', '上野', '-', '飯店'];
     if (skipLocations.includes(location) || location.includes('返回飯店') || location.includes('前往')) {
         return '';
     }
     
     // 【修正點】使用標準 Google Maps 查詢參數 'q=' 替代 daddr/dir
-    const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`; 
+    const mapUrl = `http://googleusercontent.com/maps.google.com/9{encodeURIComponent(location)}`; 
 
     return `<a href="${mapUrl}" target="_blank" class="nav-button">📍 搜尋 ${location.split('→')[0]}</a>`;
 }
@@ -452,7 +449,7 @@ function parseChineseDate(dateStr) {
 }
 
 
-// --- 3. 天氣 API 函數 ---
+// --- 3. 天氣 API 函數 (與前一版本一致) ---
 
 /**
  * 抓取單個地點的即時天氣數據
@@ -497,7 +494,7 @@ async function fetchWeatherData(locationName, targetDate) {
 }
 
 
-// --- 4. 行程渲染主函數 ---
+// --- 4. 行程渲染主函數 (與前一版本一致) ---
 
 /**
  * 渲染每日行程卡片
@@ -557,7 +554,7 @@ function renderItineraries() {
 }
 
 
-// --- 5. 工具箱數據渲染主函數 ---
+// --- 5. 工具箱數據渲染主函數 (與前一版本一致) ---
 
 /**
  * 渲染旅遊工具箱資訊 (航班、住宿、緊急聯絡、記帳介面)
@@ -579,7 +576,7 @@ function loadToolkitData() {
 
     // 2. 渲染住宿資訊
     // 【修正點】使用標準 Google Maps 查詢連結
-    const hotelMapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(info.hotel)}`;
+    const hotelMapUrl = `maps.google.com0{encodeURIComponent(info.hotel)}`;
     document.getElementById('accommodation-info').innerHTML = `
         <h2>🏠 住宿資訊</h2>
         <div class="info-box">
@@ -643,10 +640,17 @@ function loadToolkitData() {
 
 // --- 6. 離線記帳 (LocalStorage) 函數 ---
 
-// 獲取現有的交易記錄
+// 輔助函數：從 localStorage 獲取所有交易
 function getTransactions() {
-    // 確保最新的交易在前面 (unshift 放入，所以這裡不需要 reverse)
-    return JSON.parse(localStorage.getItem('transactions') || '[]'); 
+    let transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+    // 排序：確保列表以日期降序顯示 (最新在前)
+    transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+    return transactions; 
+}
+
+// 輔助函數：根據 ID 查找交易
+function getTransaction(id) {
+    return getTransactions().find(t => t.id === id);
 }
 
 // 處理新增交易
@@ -663,7 +667,6 @@ function handleAddTransaction(event) {
     }
 
     const newTransaction = {
-        // 使用 Date.now() 確保 ID 唯一
         id: Date.now(), 
         amount: amount,
         category: category,
@@ -672,7 +675,7 @@ function handleAddTransaction(event) {
     };
 
     const transactions = getTransactions();
-    transactions.unshift(newTransaction); // 新增到列表最前面
+    transactions.push(newTransaction); // 放入新交易
     localStorage.setItem('transactions', JSON.stringify(transactions));
 
     // 重置表單並重新渲染
@@ -681,7 +684,73 @@ function handleAddTransaction(event) {
 }
 
 /**
- * 【新增功能】處理刪除交易
+ * 【新增功能】處理修改交易 (日期、金額、類別、備註)
+ */
+function handleEditTransaction(id) {
+    const transactionToEdit = getTransaction(id);
+    if (!transactionToEdit) return;
+
+    // 定義所有類別選項
+    const categories = ['food', 'transport', 'shopping', 'ticket', 'other'];
+
+    // 1. 獲取新日期 (YYYY-MM-DD)
+    let newDate = prompt(`請輸入新的日期 (格式: YYYY-MM-DD)，目前: ${transactionToEdit.date}`, transactionToEdit.date);
+    if (newDate === null) return; // 使用者取消
+
+    // 簡單的日期格式驗證 (不嚴格檢查是否為有效日期)
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(newDate)) {
+        alert("日期格式錯誤，請使用 YYYY-MM-DD 格式。");
+        return;
+    }
+
+    // 2. 獲取新金額
+    let newAmountStr = prompt(`請輸入新的金額，目前: ${transactionToEdit.amount}`, transactionToEdit.amount);
+    if (newAmountStr === null) return; 
+
+    const newAmount = parseFloat(newAmountStr);
+    if (isNaN(newAmount) || newAmount <= 0) {
+        alert("金額無效，請輸入數字。");
+        return;
+    }
+
+    // 3. 獲取新類別
+    const categoryOptions = categories.map(c => `[${c}]`).join(', ');
+    let newCategory = prompt(`請輸入新的類別 (${categoryOptions})，目前: ${transactionToEdit.category}`, transactionToEdit.category);
+    if (newCategory === null) return; 
+    newCategory = newCategory.toLowerCase().trim();
+
+    if (!categories.includes(newCategory)) {
+        alert(`類別無效，請使用以下選項之一: ${categories.join(', ')}`);
+        return;
+    }
+
+    // 4. 獲取新備註
+    let newDescription = prompt(`請輸入新的備註/品項，目前: ${transactionToEdit.description}`, transactionToEdit.description);
+    if (newDescription === null) return;
+
+    // 確認修改
+    if (!confirm('您確定要儲存這些修改嗎？')) return;
+
+    // 執行更新
+    let transactions = getTransactions();
+    const index = transactions.findIndex(t => t.id === id);
+
+    if (index !== -1) {
+        transactions[index].date = newDate;
+        transactions[index].amount = newAmount;
+        transactions[index].category = newCategory;
+        transactions[index].description = newDescription;
+
+        // 重新排序並儲存
+        localStorage.setItem('transactions', JSON.stringify(transactions));
+        alert("交易已成功修改！");
+        renderBudgetTracker();
+    }
+}
+
+
+/**
+ * 處理刪除交易
  */
 function handleDeleteTransaction(id) {
     if (!confirm('您確定要刪除這筆交易嗎？')) {
@@ -716,7 +785,7 @@ function renderBudgetTracker() {
             dailySpend += t.amount;
         }
 
-        // 交易列表 HTML - 【重要修正：新增刪除按鈕】
+        // 交易列表 HTML - 【修正：新增編輯按鈕 ✏️】
         listHtml += `
             <li class="transaction-item category-${t.category}">
                 <div class="transaction-detail">
@@ -725,6 +794,7 @@ function renderBudgetTracker() {
                 </div>
                 <div class="transaction-actions">
                     <small>${t.date}</small>
+                    <button class="edit-btn" data-id="${t.id}">✏️</button>
                     <button class="delete-btn" data-id="${t.id}">🗑️</button> 
                 </div>
             </li>
@@ -742,12 +812,18 @@ function renderBudgetTracker() {
 
     if (list) list.innerHTML = listHtml;
     
-    // 【重要：綁定刪除按鈕的事件】
+    // 【重要：綁定按鈕的事件】
     document.querySelectorAll('.delete-btn').forEach(button => {
         button.addEventListener('click', (event) => {
-            // 獲取按鈕上儲存的交易 ID (將其從字串轉換為數字)
             const transactionId = parseInt(event.currentTarget.dataset.id);
             handleDeleteTransaction(transactionId);
+        });
+    });
+
+    document.querySelectorAll('.edit-btn').forEach(button => {
+        button.addEventListener('click', (event) => {
+            const transactionId = parseInt(event.currentTarget.dataset.id);
+            handleEditTransaction(transactionId); // 綁定編輯函數
         });
     });
 }
@@ -778,5 +854,8 @@ document.addEventListener('DOMContentLoaded', () => {
         timelineTab.classList.remove('active');
         timelinePage.classList.add('hidden');    // 隱藏行程
         toolkitPage.classList.remove('hidden');  // 顯示工具箱
+        
+        // 確保切換到工具箱時，記帳列表是最新狀態
+        renderBudgetTracker(); 
     });
 });

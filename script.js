@@ -429,18 +429,17 @@ function parseActivity(activity, notes) {
  * 創建 Google Maps 導航連結 (修正為標準 URL)
  */
 function createNavigationButton(location) {
-    // 檢查是否為不需要導航的活動
+    // 檢查是否為不需要導航/查詢的活動
     const skipLocations = ['飯店/上野', '上野', '-', '飯店'];
     if (skipLocations.includes(location) || location.includes('返回飯店') || location.includes('前往')) {
         return '';
     }
     
-    // ✅ 這是修正後的 Google Maps 標準導航 URL 格式
-    // 使用 'www.google.com/maps/dir/' 或 'www.google.com/maps/search/'
-    // 這裡我們使用 'dir' (導航方向) 搭配目的地 (destination)
-    const mapUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(location)}`; 
+    // ✅ 這是修正後的 Google Maps 標準查詢 URL 格式
+    // 使用 'q=' 參數，讓 Google Maps 直接搜尋並顯示這個地點
+    const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`; 
 
-    return `<a href="${mapUrl}" target="_blank" class="nav-button">📍 導航至 ${location.split('→')[0]}</a>`;
+    return `<a href="${mapUrl}" target="_blank" class="nav-button">📍 搜尋 ${location.split('→')[0]}</a>`;
 }
 
 /**

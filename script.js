@@ -19,7 +19,7 @@ const tripData = {
           "departureTime": "09:20",
           "departureAirport": "香港國際機場 T1",
           "arrivalTime": "14:00-16:00",
-          "arrivalAirport": "NRT/HND"
+          "arrivalAirport": "NRT 成田國際機場 T1"
         },
         "return": {
           "flightNumber": "HX635",
@@ -429,7 +429,6 @@ function parseActivity(activity, notes) {
 
 /**
  * 創建 Google Maps 搜尋連結 (使用標準查詢 q)
- * **已修正：導航連結的 URL 格式**
  */
 function createNavigationButton(location) {
     const skipLocations = ['飯店/上野', '上野', '-', '飯店'];
@@ -437,7 +436,7 @@ function createNavigationButton(location) {
         return '';
     }
     
-    // 修正後的 Google Maps 搜尋 URL
+    // 修正後的 Google Maps 搜尋 URL (使用標準格式)
     const searchLocation = location.split('→')[0].trim();
     const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(searchLocation)}`; 
 
@@ -508,7 +507,7 @@ async function fetchWeatherData(locationName, targetDate) {
 }
 
 
-// --- 4. 行程渲染主函數 (新增折疊功能和自動定位) ---
+// --- 4. 行程渲染主函數 (修正折疊功能) ---
 
 /**
  * 渲染每日行程卡片
@@ -587,14 +586,15 @@ function renderItineraries() {
             </div>
         `;
 
+        // 綁定點擊事件
         const header = dayCard.querySelector('.toggle-header');
         header.addEventListener('click', () => {
              // 切換整個卡片的 'expanded' 狀態
              dayCard.classList.toggle('expanded'); 
-
-        timelineContainer.appendChild(dayCard);
-
         });
+
+        // 將卡片加入 DOM 樹
+        timelineContainer.appendChild(dayCard);
     });
 }
 
@@ -606,7 +606,7 @@ function renderItineraries() {
 function loadToolkitData() {
     const info = tripData.tripInfo;
 
-    // 1. 渲染航班資訊
+    // 1. 渲染航班資訊 (使用您提供的準確時間)
     document.getElementById('flight-info').innerHTML = `
         <h2>✈️ 航班資訊</h2>
         <div class="info-box">
@@ -619,7 +619,6 @@ function loadToolkitData() {
     `;
 
     // 2. 渲染住宿資訊
-    // 修正: 使用標準 Google Maps 搜尋 API 格式
     const hotelMapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(info.hotel)}`;
     document.getElementById('accommodation-info').innerHTML = `
         <h2>🏠 住宿資訊</h2>
@@ -631,7 +630,7 @@ function loadToolkitData() {
         
     `;
 
-    // 3. 渲染緊急聯絡資訊
+    // 3. 渲染緊急聯絡資訊 (使用您提供的準確電話)
     document.getElementById('emergency-contact').innerHTML = `
         <h2>📞 緊急聯絡電話</h2>
         <div class="info-box">

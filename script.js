@@ -16,18 +16,26 @@ const tripData = {
       "flights": {
         "outbound": {
           "flightNumber": "HX608",
+          // *** 修正: 去程抵達時間由 14:00-16:00 修正為 14:25 ***
           "departureTime": "09:20",
-          "departureAirport": "香港國際機場 T1",
-          "arrivalTime": "14:00-16:00",
+          "departureAirport": "香港國際機場 T1 (HKG)",
+          "arrivalTime": "14:25", 
           "arrivalAirport": "NRT 成田國際機場 T1"
         },
         "return": {
           "flightNumber": "HX635",
+          // *** 修正: 回程抵達時間由空值修正為 21:30 ***
           "departureTime": "17:05",
-          "departureAirport": "NRT 成田國際機場 T1"
+          "departureAirport": "NRT 成田國際機場 T1",
+          "arrivalTime": "21:30",
+          "arrivalAirport": "香港國際機場 T1 (HKG)"
         }
       },
       "emergencyContacts": {
+        // *** 修正: 飯店電話和緊急聯絡人資訊已更新 ***
+        "hotelPhone": "+81 3-6689-5511",
+        "contactName": "哥哥 (Yin Hong)",
+        "contactPhone": "+852 96536696",
         "notes": "請在此處填寫緊急聯絡資訊。"
       }
     },
@@ -44,7 +52,7 @@ const tripData = {
             "notes": ""
           },
           {
-            "time": "14:00-16:00",
+            "time": "14:25", // 配合新抵達時間
             "activity": "抵達、入境與交通",
             "location": "NRT/HND→上野",
             "transport": "機場交通(60-90 分鐘)",
@@ -606,14 +614,14 @@ function renderItineraries() {
 function loadToolkitData() {
     const info = tripData.tripInfo;
 
-    // 1. 渲染航班資訊 (使用您提供的準確時間)
+    // 1. 渲染航班資訊 (使用 tripData 中的最新數據)
     document.getElementById('flight-info').innerHTML = `
         <h2>✈️ 航班資訊</h2>
         <div class="info-box">
             <h3>去程 (${info.flights.outbound.flightNumber})</h3>
-            <p><strong>時間:</strong> 09:20 (HKG) → 14:25 (${info.flights.outbound.arrivalAirport})</p>
+            <p><strong>時間:</strong> ${info.flights.outbound.departureTime} (HKG) → ${info.flights.outbound.arrivalTime} (${info.flights.outbound.arrivalAirport})</p>
             <h3>回程 (${info.flights.return.flightNumber})</h3>
-            <p><strong>時間:</strong> ${info.flights.return.departureTime} (NRT) → 21:30 (HKG)</p>
+            <p><strong>時間:</strong> ${info.flights.return.departureTime} (NRT) → ${info.flights.return.arrivalTime} (HKG)</p>
             <p class="alert-note">🚨 務必在 12:30 前出發前往機場！</p>
         </div>
     `;
@@ -630,13 +638,13 @@ function loadToolkitData() {
         
     `;
 
-    // 3. 渲染緊急聯絡資訊 (使用您提供的準確電話)
+    // 3. 渲染緊急聯絡資訊 (使用 tripData 中的最新數據)
     document.getElementById('emergency-contact').innerHTML = `
         <h2>📞 緊急聯絡電話</h2>
         <div class="info-box">
             <p><strong>警察/火災/救護:</strong> 110 / 119</p>
-            <p><strong>飯店電話:</strong> +81 3-6689-5511</p>
-            <p><strong>您的緊急聯絡人:</strong> 哥哥 (Yin Hong) +852 96536696</p>
+            <p><strong>飯店電話:</strong> ${info.emergencyContacts.hotelPhone}</p>
+            <p><strong>您的緊急聯絡人:</strong> ${info.emergencyContacts.contactName} ${info.emergencyContacts.contactPhone}</p>
             <p class="alert-note">${info.emergencyContacts.notes}</p>
         </div>
     `;

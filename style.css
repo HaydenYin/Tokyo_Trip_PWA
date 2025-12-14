@@ -111,16 +111,18 @@ h1 {
     transform: rotate(180deg);
 }
 
+/* !!! 核心修正區域 !!! */
 .activities-list {
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.5s ease-in-out;
-    padding: 0 1rem; 
+    /* 修正: 確保 padding 也能平滑過渡，才能完全隱藏 */
+    transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out; 
+    padding: 0 1rem; /* collapsed state (0 vertical padding, 1rem horizontal) */
 }
 
 .daily-card.expanded .activities-list {
     max-height: 2000px; /* 足夠大的數值以顯示所有內容 */
-    padding: 1rem;
+    padding: 1rem; /* expanded state (1rem vertical and horizontal padding) */
 }
 
 

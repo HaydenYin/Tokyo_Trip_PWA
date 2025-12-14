@@ -586,13 +586,14 @@ function renderItineraries() {
                 ${activitiesHtml}
             </div>
         `;
-        timelineContainer.appendChild(dayCard);
 
-        // 綁定點擊事件
         const header = dayCard.querySelector('.toggle-header');
         header.addEventListener('click', () => {
              // 切換整個卡片的 'expanded' 狀態
              dayCard.classList.toggle('expanded'); 
+             
+        timelineContainer.appendChild(dayCard);
+
         });
     });
 }

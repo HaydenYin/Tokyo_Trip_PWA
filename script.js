@@ -622,7 +622,7 @@ function loadToolkitData() {
             <h3>去程 (${info.flights.outbound.flightNumber})</h3>
             <p><strong>時間:</strong> ${info.flights.outbound.departureTime} (HKG) → ${info.flights.outbound.arrivalTime} (${info.flights.outbound.arrivalAirport})</p>
             <h3>回程 (${info.flights.return.flightNumber})</h3>
-            <p><strong>時間:</strong> ${info.flights.return.departureTime} (NRT) → ${info.flights.return.arrivalTime} (HKG)</p>
+            <p><strong>時間:</strong> ${info.flights.return.departureTime} (${info.flights.outbound.arrivalAirport}) → ${info.flights.return.arrivalTime} (HKG)</p>
             <p class="alert-note">🚨 務必在 12:30 前出發前往機場！</p>
         </div>
     `;
